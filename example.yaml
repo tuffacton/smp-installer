@@ -1,0 +1,11 @@
+infra:
+  plan_output_dir: "./out"
+  provider: "aws"
+  region: "us-east-1"
+  nodes:
+    machine_type: "t2.2xlarge"
+    initial_nodes: 3
+    minimum_nodes: 1
+    maximum_nodes: 3
+  kubernetes:
+    version: "1.29"
