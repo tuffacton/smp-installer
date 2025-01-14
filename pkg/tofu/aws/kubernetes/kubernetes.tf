@@ -9,7 +9,7 @@ resource "random_string" "suffix" {
 
 locals {
   sanitized_version = replace(var.cluster_version, ".", "-")
-  cluster_name = "smp-eks-${local.sanitized_version}-${random_string.suffix.result}"
+  cluster_name = "harness-smp-eks-${local.sanitized_version}-${random_string.suffix.result}"
 }
 
 data "aws_availability_zones" "available" {
@@ -21,7 +21,7 @@ data "aws_availability_zones" "available" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.8.5"
+  version = "20.31.1"
 
   cluster_name    = local.cluster_name
   cluster_version = var.cluster_version
@@ -33,9 +33,11 @@ module "eks" {
     aws-ebs-csi-driver = {
       service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
     }
-    snapshot-controller = {
-
-    }
+    snapshot-controller = {}
+    coredns                = {}
+    eks-pod-identity-agent = {}
+    kube-proxy             = {}
+    vpc-cni                = {}
   }
 
   vpc_id     = module.vpc.vpc_id
@@ -76,6 +78,19 @@ module "irsa-ebs-csi" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
 }
 
-output "eksout" {
-  value = module.eks
+# data "aws_eks_cluster_auth" "smp" {
+#   name = local.cluster_name
+# }
+
+# output "eksout" {
+#   value = module.eks
+# }
+
+# output authout {
+#   value = data.aws_eks_cluster_auth.smp.token
+#   sensitive = true
+# }
+
+output clustername {
+  value = local.cluster_name
 }

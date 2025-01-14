@@ -1,11 +1,27 @@
-infra:
-  plan_output_dir: "./out"
-  provider: "aws"
-  region: "us-east-1"
+profile: "small"
+output_directory: "./dist1"
+
+provider: "aws"
+region: "us-east-1"
+
+kubernetes:
+  manage: true
+  version: "1.29"
   nodes:
     machine_type: "t2.2xlarge"
-    initial_nodes: 3
+    initial_nodes: 5
     minimum_nodes: 1
-    maximum_nodes: 3
-  kubernetes:
-    version: "1.29"
+    maximum_nodes: 5
+
+loadbalancer:
+  manage: true
+  availability_zones: 2
+
+harness:
+  version: "0.23.1"
+  chart_path: ""
+  namespace: "harness"
+  registry: "https://harness.github.io/helm-charts"
+  override_files: []
+  nginx: true
+  istio: false

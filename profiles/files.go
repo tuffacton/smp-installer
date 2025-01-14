@@ -1,4 +1,4 @@
-package tofu
+package profiles
 
 import (
 	"embed"
@@ -8,18 +8,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-//go:embed aws
-var AWSTofuFiles embed.FS
+//go:embed small
+var SmallProfileFiles embed.FS
 
-func CopyFiles(srcDir string, outDir string) error {
+var filesMap = map[string]embed.FS{
+	"small": SmallProfileFiles,
+}
+
+func CopyFiles(profile string, outDir string) error {
 	os.MkdirAll(outDir, 0777)
-	files, err := AWSTofuFiles.ReadDir(srcDir)
+	profileFiles := filesMap[profile]
+	files, err := profileFiles.ReadDir(profile)
 	if err != nil {
-		log.Err(err).Msgf("could not find %s directory", srcDir)
+		log.Err(err).Msgf("could not find %s directory", profile)
 		return err
 	}
 	for _, f := range files {
-		data, err := AWSTofuFiles.ReadFile(path.Join(srcDir, f.Name()))
+		data, err := profileFiles.ReadFile(path.Join(profile, f.Name()))
 		if err != nil {
 			log.Err(err).Msgf("cannot read file %s", f.Name())
 			return err
