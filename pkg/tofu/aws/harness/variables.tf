@@ -14,8 +14,8 @@ variable "override_file" {
   type        = string
 }
 
-variable "registry" {
-  description = "Helm registry to download harness chart"
+variable "repository" {
+  description = "Helm repository to download harness chart"
   type        = string
   default = "https://harness.github.io/helm-charts"
 }

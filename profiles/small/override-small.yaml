@@ -1,6 +1,6 @@
 global:
   ci:
-    enabled: true
+    enabled: {{ .Config.harness.modules.ci }}
   cg:
     enabled: false
   ingress:

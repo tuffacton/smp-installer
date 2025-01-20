@@ -29,7 +29,7 @@ provider "helm" {
 resource "helm_release" "harness_smp" {
   name = "harness"
 
-  repository = var.registry
+  repository = var.repository
   chart      = "harness"
 
   namespace = var.namespace
