@@ -26,17 +26,16 @@ func NewTemplateRenderer(configStore store.DataStore, outputStore store.DataStor
 
 func (t *TemplateRenderer) Render(ctx context.Context,
 	data map[string]interface{},
-	dataObjectPrefix string,
 	templateDir string) error {
 
 	allTpls := t.readTemplates(templateDir)
 	vals := make(map[string]interface{})
-	vals[dataObjectPrefix] = data
+	vals["Self"] = data
 	vals["Config"] = t.configStore.DataMap(ctx)
 	vals["Output"] = t.outputStore.DataMap(ctx)
 
 	tpl := template.New("gotpl")
-	tpl.Option("missingkey=error")
+	tpl.Option("missingkey=zero")
 	tpl.Funcs(sprig.FuncMap())
 
 	for filename, filedata := range allTpls {

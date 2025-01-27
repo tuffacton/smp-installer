@@ -1,0 +1,7 @@
+kubernetes:
+  nodes:
+    machine_type: "t2.2xlarge"
+    initial_nodes: 5
+    minimum_nodes: 1
+    maximum_nodes: 5
+    availability_zones: 2

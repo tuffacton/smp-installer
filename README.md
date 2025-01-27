@@ -2,13 +2,17 @@
 Installer for Harness SMP
 
 # Supported Platforms
-- AWS
+- AWS: Supports EKS with ALB
 
 # Supported Profiles
-- small
+- small: The small profile configures harness to support 200 users with 50 parallel executions.
 
 # Quick Start
 
+## Pre-requisites
+1. Make sure you have `tofu` installed. You can check (official documentation)[https://opentofu.org/docs/intro/install/] on how to install opentofu.
+
+## Run
 1. Clone this repository
 2. Run the binary with the following command
   ```

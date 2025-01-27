@@ -9,4 +9,5 @@ type DataStore interface {
 	DataMap(ctx context.Context) map[string]interface{}
 
 	Set(ctx context.Context, key string, value interface{}) error
+	AddAll(ctx context.Context, data map[string]interface{}) error
 }

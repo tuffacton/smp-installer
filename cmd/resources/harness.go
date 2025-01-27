@@ -18,8 +18,13 @@ func (l *harnessCommand) Name() string {
 
 // Sync implements ResourceCommand.
 func (l *harnessCommand) Sync(ctx context.Context, configStore store.DataStore, outputStore store.DataStore) error {
-	helmClient := client.NewHelmClient(l.Name(), configStore, outputStore)
-	err := helmClient.PreExec(ctx)
+	clientConfig, err := CreateClientConfig(ctx, l, configStore)
+	if err != nil {
+		log.Err(err).Msgf("unable to create client config")
+		return err
+	}
+	helmClient := client.NewHelmClient(clientConfig, configStore, outputStore)
+	err = helmClient.PreExec(ctx)
 	if err != nil {
 		log.Error().Msgf("pre-exec step failed while syncing %s", l.Name())
 		return err
@@ -29,11 +34,12 @@ func (l *harnessCommand) Sync(ctx context.Context, configStore store.DataStore, 
 		log.Error().Msgf("exec step failed while syncing %s", l.Name())
 		return err
 	}
-	err = helmClient.PostExec(ctx)
+	out, err := helmClient.PostExec(ctx)
 	if err != nil {
 		log.Error().Msgf("post-exec step failed while syncing %s", l.Name())
 		return err
 	}
+	outputStore.Set(ctx, l.Name(), out)
 	return nil
 }
 

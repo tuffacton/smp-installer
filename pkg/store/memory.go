@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -38,25 +39,6 @@ func (c *memoryStore) GetString(ctx context.Context, key string) string {
 	return val.(string)
 }
 
-// Set implements DataStore.
-func (c *memoryStore) Set(ctx context.Context, path string, value interface{}) error {
-	segments := strings.Split(path, ".")
-	currentData := c.data
-	for idx, seg := range segments {
-		// log.Info().Msgf("checking for segment: %s", seg)
-		if idx == len(segments)-1 {
-			currentData[seg] = value
-			return nil
-		}
-		_, ok := currentData[seg]
-		if !ok {
-			currentData[seg] = make(map[string]interface{})
-		}
-		currentData = currentData[seg].(map[string]interface{})
-	}
-	return nil
-}
-
 // DataMap implements DataStore.
 func (c *memoryStore) DataMap(ctx context.Context) map[string]interface{} {
 	return c.data
@@ -77,6 +59,31 @@ func (c *memoryStore) Get(ctx context.Context, path string) (interface{}, error)
 		value = value[seg].(map[string]interface{})
 	}
 	return nil, fmt.Errorf("no path found %s", path)
+}
+
+// Set implements DataStore.
+func (c *memoryStore) Set(ctx context.Context, path string, value interface{}) error {
+	segments := strings.Split(path, ".")
+	currentData := c.data
+	for idx, seg := range segments {
+		// log.Info().Msgf("checking for segment: %s", seg)
+		if idx == len(segments)-1 {
+			currentData[seg] = value
+			return nil
+		}
+		_, ok := currentData[seg]
+		if !ok {
+			currentData[seg] = make(map[string]interface{})
+		}
+		currentData = currentData[seg].(map[string]interface{})
+	}
+	return nil
+}
+
+// Set implements DataStore.
+func (c *memoryStore) AddAll(ctx context.Context, data map[string]interface{}) error {
+	c.data = util.MergeMaps(c.data, data)
+	return nil
 }
 
 func NewMemoryStore() DataStore {

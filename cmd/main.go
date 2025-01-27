@@ -2,16 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/cmd/resources"
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/store"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
 
 func main() {
+	setupLogging()
 	cmd := &cobra.Command{
 		Use:          "harness-smp",
 		Short:        "Harness SMP Installer.",
@@ -28,6 +33,23 @@ func main() {
 		log.Err(err).Msg("command failed")
 		os.Exit(1)
 	}
+}
+
+func setupLogging() {
+	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	output.FormatLevel = func(i interface{}) string {
+		return strings.ToUpper(fmt.Sprintf("| %-6s|", i))
+	}
+	output.FormatMessage = func(i interface{}) string {
+		return fmt.Sprintf("***%s****", i)
+	}
+	output.FormatFieldName = func(i interface{}) string {
+		return fmt.Sprintf("%s:", i)
+	}
+	output.FormatFieldValue = func(i interface{}) string {
+		return strings.ToUpper(fmt.Sprintf("%s", i))
+	}
+	log.Logger = zerolog.New(output).With().Timestamp().Logger()
 }
 
 func newSyncCommand() *cobra.Command {
@@ -74,61 +96,3 @@ func getResourceCommands() []resources.ResourceCommand {
 	resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
 	return resourceCommands
 }
-
-// func syncInfra(config *client.Configuration, cmd *cobra.Command) error {
-// 	config.InfraConfig.OutputDir = path.Join(config.OutputDirectory, "infra")
-// 	infraClient := client.NewKubernetesClient(&config.InfraConfig)
-// 	err := infraClient.CopyTofuFiles()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = infraClient.PrepareInputVariables()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	infraClient.ExecuteInfraCommand(client.InitCommand)
-// 	dryRun, _ := cmd.Flags().GetBool("dry-run")
-// 	if dryRun {
-// 		return infraClient.ExecuteInfraCommand(client.PlanCommand)
-// 	}
-// 	return infraClient.ExecuteInfraCommand(client.ApplyCommand)
-// }
-
-// func populateHarnessConfig(config *client.Configuration, cmd *cobra.Command) error {
-// 	config.InfraConfig.OutputDir = path.Join(config.OutputDirectory, "infra")
-// 	config.HarnessConfig.OutputDirectory = path.Join(config.OutputDirectory, "helm")
-// 	infraClient := client.NewKubernetesClient(&config.InfraConfig)
-// 	infraout, err := infraClient.TofuOutput()
-// 	log.Info().Msgf("k8s endpoint: %s", infraout.KubernetesClusterEndpoint)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	config.HarnessConfig.KubernetesClusterCertificate = infraout.KubernetesClusterCertificate
-// 	config.HarnessConfig.KubernetesClusterEndpoint = infraout.KubernetesClusterEndpoint
-// 	config.HarnessConfig.KubernetesClusterToken = infraout.KubernetesClusterToken
-// 	config.HarnessConfig.LoadbalancerIP = infraout.LoadbalancerIP
-// 	return nil
-// }
-
-// func syncHarness(config *client.Configuration, cmd *cobra.Command) error {
-// 	config.HarnessConfig.OutputDirectory = path.Join(config.OutputDirectory, "helm")
-// 	helmClient := client.NewHelmClient(&config.HarnessConfig)
-// 	err := helmClient.CopyTofuFiles()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = helmClient.PrepareOverride()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	err = helmClient.PrepareInputVariables()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	dryRun, _ := cmd.Flags().GetBool("dry-run")
-// 	helmClient.Install(client.InitCommand)
-// 	if dryRun {
-// 		return helmClient.Install(client.PlanCommand)
-// 	}
-// 	return helmClient.Install(client.ApplyCommand)
-// }

@@ -9,3 +9,18 @@ variable "availability_zones" {
     type = number
     default = 2
 }
+
+variable "vpc" {
+    description = "vpc to create loadbalancer in"
+    type = string
+}
+
+variable "subnets" {
+  description = "subnet names for availabilty"
+  type = list(string)
+}
+
+variable "harness_node_port" {
+  description = "Node port of ingress controller for harness"
+  type = number
+}

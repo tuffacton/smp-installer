@@ -1,6 +1,15 @@
 global:
   ci:
-    enabled: {{ .Config.harness.modules.ci }}
+    enabled: {{ default false .Config.harness.modules.ci }}
+  cd:
+    enabled: {{ default false .Config.harness.modules.cd }}
+  ff:
+    enabled: {{ default false .Config.harness.modules.ff }}
+  ccm:
+    enabled: {{ default false .Config.harness.modules.ccm }}
+  sto:
+    enabled: {{ default false .Config.harness.modules.sto }}
+  
   cg:
     enabled: false
   ingress:
@@ -13,7 +22,7 @@ global:
     enabled: {{ .Config.harness.nginx }}
     tls:
       enabled: false
-  loadbalancerURL: "http://a7390ea26c1d34b668436b39fca528f6-1313572755.us-east-1.elb.amazonaws.com"
+  loadbalancerURL: {{ .Output.dns.domain }}
 
 chaos:
   chaos-common:
@@ -202,14 +211,14 @@ platform:
         create: {{ .Config.harness.nginx }}
 {{- if ne .Config.provider "aws" }}
         loadBalancerIP: {{ .Output.loadbalancer.ip }}
-{{- end }}
         loadBalancerEnabled: true
-        service:
-          annotations:
-{{- if eq .Config.provider "aws" }}
-            service.beta.kubernetes.io/aws-load-balancer-type: "alb"
-            service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing" # Or "internal" for internal access
 {{- end }}
+#         service:
+#           annotations:
+# {{- if eq .Config.provider "aws" }}
+#             service.beta.kubernetes.io/aws-load-balancer-type: "alb"
+#             service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing" # Or "internal" for internal access
+# {{- end }}
         resources:
           limits:
             memory: 512Mi

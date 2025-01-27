@@ -8,33 +8,33 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type loadbalancerCommand struct {
+type dnsCommand struct {
 }
 
 // Name implements ResourceCommand.
-func (l *loadbalancerCommand) Name() string {
-	return "loadbalancer"
+func (l *dnsCommand) Name() string {
+	return "dns"
 }
 
 // Sync implements ResourceCommand.
-func (l *loadbalancerCommand) Sync(ctx context.Context, configStore store.DataStore, outputStore store.DataStore) error {
+func (l *dnsCommand) Sync(ctx context.Context, configStore store.DataStore, outputStore store.DataStore) error {
 	clientConfig, err := CreateClientConfig(ctx, l, configStore)
 	if err != nil {
 		log.Err(err).Msgf("unable to create client config")
 		return err
 	}
-	lbClient := client.NewLoadbalancerClient(clientConfig, configStore, outputStore)
-	err = lbClient.PreExec(ctx)
+	helmClient := client.NewDnsClient(clientConfig, configStore, outputStore)
+	err = helmClient.PreExec(ctx)
 	if err != nil {
 		log.Error().Msgf("pre-exec step failed while syncing %s", l.Name())
 		return err
 	}
-	err = lbClient.Exec(ctx)
+	err = helmClient.Exec(ctx)
 	if err != nil {
 		log.Error().Msgf("exec step failed while syncing %s", l.Name())
 		return err
 	}
-	out, err := lbClient.PostExec(ctx)
+	out, err := helmClient.PostExec(ctx)
 	if err != nil {
 		log.Error().Msgf("post-exec step failed while syncing %s", l.Name())
 		return err
@@ -43,6 +43,6 @@ func (l *loadbalancerCommand) Sync(ctx context.Context, configStore store.DataSt
 	return nil
 }
 
-func NewLoadbalancerCommand() ResourceCommand {
-	return &loadbalancerCommand{}
+func NewDnsCommand() ResourceCommand {
+	return &dnsCommand{}
 }

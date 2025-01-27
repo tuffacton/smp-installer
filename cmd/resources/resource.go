@@ -2,7 +2,9 @@ package resources
 
 import (
 	"context"
+	"path"
 
+	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/client"
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/store"
 	"github.com/rs/zerolog/log"
 )
@@ -20,4 +22,22 @@ func CheckIsManaged(ctx context.Context, rc ResourceCommand, configStore store.D
 	}
 	isManagedB := isManaged.(bool)
 	return isManagedB, nil
+}
+
+func CreateClientConfig(ctx context.Context, rc ResourceCommand, configStore store.DataStore) (client.ClientConfig, error) {
+	isManaged, err := CheckIsManaged(ctx, rc, configStore)
+	if err != nil {
+		return client.ClientConfig{}, err
+	}
+	resourceName := rc.Name()
+	provider := configStore.GetString(ctx, store.ProviderKey)
+	outdir := configStore.GetString(ctx, store.OutputDirectoryKey)
+	contextDir := path.Join(outdir, provider, resourceName)
+	return client.ClientConfig{
+		ResourceName:     resourceName,
+		IsManaged:        isManaged,
+		Provider:         client.CloudProviderType(provider),
+		ContextDirectory: contextDir,
+		OutputDirectory:  outdir,
+	}, nil
 }

@@ -10,7 +10,7 @@ kubernetes:
   manage: true                    # If set to false, installer will not execute tofu module for kubernetes cluster
   # cluster_name: ""              # Set this to existing cluster if manage is set to false
   version: "1.29"                 # Kubernetes version to create the cluster
-  # nodes:                        # Override nodes configuration according to your needs. By default, installer will set these values based on profile
+  nodes: {}                       # Override nodes configuration according to your needs. By default, installer will set these values based on profile
   #   machine_type: "t2.2xlarge"
   #   initial_nodes: 5
   #   minimum_nodes: 1
