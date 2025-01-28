@@ -41,7 +41,7 @@ func (l *loadbalancerClient) PostExec(ctx context.Context) (map[string]interface
 		l.outputStore.Set(ctx, "loadbalancer.ip", existingIp)
 		return nil, nil
 	}
-	lbip, err := tofu.GetOutput(ctx, l.clientConfig.ContextDirectory, "lb_eip_public_ip", ".")
+	lbip, err := tofu.GetOutput(ctx, l.clientConfig.ContextDirectory, "dns_name", ".")
 	if err != nil {
 		log.Err(err).Msgf("unable to retrieve loadbalancer ip")
 		return nil, err

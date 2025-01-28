@@ -24,10 +24,11 @@ func CheckIsManaged(ctx context.Context, rc ResourceCommand, configStore store.D
 	return isManagedB, nil
 }
 
-func CreateClientConfig(ctx context.Context, rc ResourceCommand, configStore store.DataStore) (client.ClientConfig, error) {
+func CreateClientConfig(ctx context.Context, rc ResourceCommand, configStore store.DataStore) client.ClientConfig {
 	isManaged, err := CheckIsManaged(ctx, rc, configStore)
 	if err != nil {
-		return client.ClientConfig{}, err
+		log.Err(err).Msgf("setting isManaged to false")
+		isManaged = false
 	}
 	resourceName := rc.Name()
 	provider := configStore.GetString(ctx, store.ProviderKey)
@@ -39,5 +40,5 @@ func CreateClientConfig(ctx context.Context, rc ResourceCommand, configStore sto
 		Provider:         client.CloudProviderType(provider),
 		ContextDirectory: contextDir,
 		OutputDirectory:  outdir,
-	}, nil
+	}
 }

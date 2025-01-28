@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path"
 
@@ -38,10 +39,17 @@ func (k *kubernetesClient) Exec(ctx context.Context) error {
 }
 
 // PostExec implements ResourceClient.
-func (k *kubernetesClient) PostExec(ctx context.Context) (map[string]interface{}, error) {
+func (k *kubernetesClient) PostExec(ctx context.Context) (output map[string]interface{}, err error) {
 	clusterName := ""
+	vpc := ""
+	subnets := []string{}
 	if !k.clientConfig.IsManaged {
-		clusterName = k.configStore.GetString(ctx, "cluster_name")
+		clusterName = k.configStore.GetString(ctx, "kubernetes.cluster_name")
+		vpc = k.configStore.GetString(ctx, "kubernetes.vpc")
+		subnetsFromConfig, err := k.configStore.Get(ctx, "kubernetes.subnets")
+		if err == nil {
+			subnets = subnetsFromConfig.([]string)
+		}
 	} else {
 		var err error = nil
 		clusterName, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "clustername", ".")
@@ -49,8 +57,27 @@ func (k *kubernetesClient) PostExec(ctx context.Context) (map[string]interface{}
 			log.Err(err).Msgf("unable to retrieve cluster name")
 			return nil, err
 		}
+		vpc, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "vpc", ".")
+		if err != nil {
+			log.Err(err).Msgf("unable to retrieve vpc name from tofu output")
+			return nil, err
+		}
+		subnetsFromTofuOutput, err := tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "subnets", ".")
+		if err != nil {
+			log.Err(err).Msgf("unable to retrieve cluster name")
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(subnetsFromTofuOutput), &subnets)
+		if err != nil {
+			log.Err(err).Msgf("unable to retrieve subnets from tofu output")
+			return nil, err
+		}
 	}
-	return map[string]interface{}{"cluster_name": clusterName}, nil
+	return map[string]interface{}{
+		"cluster_name": clusterName,
+		"vpc":          vpc,
+		"subnets":      subnets,
+	}, nil
 }
 
 // PreExec implements ResourceClient.
@@ -60,7 +87,7 @@ func (k *kubernetesClient) PreExec(ctx context.Context) error {
 		return err
 	}
 	profile := k.configStore.GetString(ctx, store.ProfileKey)
-	err = profiles.CopyFiles(profile, k.clientConfig.ContextDirectory)
+	err = profiles.CopyFiles(profile, k.clientConfig.ContextDirectory, []string{"config.yaml"})
 	if err != nil {
 		log.Err(err).Msgf("error copying profile files")
 		return err

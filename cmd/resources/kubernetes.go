@@ -18,13 +18,9 @@ func (l *kubernetesCommand) Name() string {
 
 // Sync implements ResourceCommand.
 func (l *kubernetesCommand) Sync(ctx context.Context, configStore store.DataStore, outputStore store.DataStore) error {
-	clientConfig, err := CreateClientConfig(ctx, l, configStore)
-	if err != nil {
-		log.Err(err).Msgf("unable to create client config")
-		return err
-	}
+	clientConfig := CreateClientConfig(ctx, l, configStore)
 	lbClient := client.NewKubernetesClient(clientConfig, configStore, outputStore)
-	err = lbClient.PreExec(ctx)
+	err := lbClient.PreExec(ctx)
 	if err != nil {
 		log.Error().Msgf("pre-exec step failed while syncing %s", l.Name())
 		return err

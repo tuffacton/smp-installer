@@ -33,3 +33,8 @@ variable "initial_nodes" {
   type        = number
   default     = 1
 }
+
+variable "harness_node_port" {
+  description = "Node port of ingress controller for harness"
+  type = number
+}

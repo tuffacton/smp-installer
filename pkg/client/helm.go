@@ -21,6 +21,10 @@ type helmClient struct {
 
 // Exec implements ResourceClient.
 func (h *helmClient) Exec(ctx context.Context) error {
+	if !h.clientConfig.IsManaged {
+		log.Info().Msgf("skipping %s sync as its not set to managed", h.clientConfig.ResourceName)
+		return nil
+	}
 	tofu.ExecuteCommand(ctx, h.clientConfig.ContextDirectory, tofu.InitCommand)
 	return tofu.ExecuteCommand(ctx, h.clientConfig.ContextDirectory, tofu.ApplyCommand)
 }
@@ -38,7 +42,7 @@ func (h *helmClient) PreExec(ctx context.Context) error {
 		return err
 	}
 	profile := h.configStore.GetString(ctx, store.ProfileKey)
-	err = profiles.CopyFiles(profile, h.clientConfig.ContextDirectory)
+	err = profiles.CopyFiles(profile, h.clientConfig.ContextDirectory, []string{"override.yaml"})
 	if err != nil {
 		log.Err(err).Msgf("unable to copy files for helm chart module")
 		return err

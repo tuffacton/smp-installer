@@ -4,7 +4,6 @@ import (
 	"context"
 	"path"
 
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/profiles"
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/render"
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/store"
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/tofu"
@@ -40,12 +39,6 @@ func (k *dnsClient) PostExec(ctx context.Context) (map[string]interface{}, error
 func (k *dnsClient) PreExec(ctx context.Context) error {
 	err := tofu.CopyFiles(path.Join(k.clientConfig.Provider.Name(), k.clientConfig.ResourceName), k.clientConfig.ContextDirectory)
 	if err != nil {
-		return err
-	}
-	profile := k.configStore.GetString(ctx, store.ProfileKey)
-	err = profiles.CopyFiles(profile, k.clientConfig.ContextDirectory)
-	if err != nil {
-		log.Err(err).Msgf("error copying profile files")
 		return err
 	}
 	renderer := render.NewTemplateRenderer(k.configStore, k.outputStore)

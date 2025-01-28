@@ -43,4 +43,5 @@ resource "helm_release" "harness_smp" {
 
   version = var.chart_version
   wait    = false
+  max_history = 10
 }

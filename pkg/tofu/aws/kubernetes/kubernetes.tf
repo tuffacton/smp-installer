@@ -61,6 +61,23 @@ module "eks" {
       availability_zones = slice(data.aws_availability_zones.available.names, 0, 2)
     }
   }
+
+  node_security_group_additional_rules = {
+    allow-ingress-private-subnet = {
+      from_port = var.harness_node_port
+      cidr_blocks = module.vpc.private_subnets_cidr_blocks
+      to_port = var.harness_node_port
+      type = "ingress"
+      protocol = "tcp"
+    }
+    allow-ingress-public-subnet = {
+      from_port = var.harness_node_port
+      cidr_blocks = module.vpc.public_subnets_cidr_blocks
+      to_port = var.harness_node_port
+      type = "ingress"
+      protocol = "tcp"
+    }
+  }
 }
 
 data "aws_iam_policy" "ebs_csi_policy" {

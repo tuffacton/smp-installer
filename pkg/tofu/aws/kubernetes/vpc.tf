@@ -22,3 +22,11 @@ module "vpc" {
     "kubernetes.io/role/internal-elb" = 1
   }
 }
+
+output "vpc" {
+  value = module.vpc.vpc_id
+}
+
+output "subnets" {
+  value = module.vpc.public_subnets
+}

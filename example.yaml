@@ -28,10 +28,11 @@ loadbalancer:
 ### For AWS, it manages the Route53 configuration. It creates a public zone in route53.
 dns:                              
   manage: false                   # If set to false, installer will not execute tofu module for dns
-  domain: "abc.com"               # Domain to be used for harness configuration. If empty, installer will use loadbalancer IP to configure endpoints.
+  domain: ""               # Domain to be used for harness configuration. If empty, installer will use loadbalancer IP to configure endpoints.
 
 ### Harness helm chart configuration
 harness:
+  manage: false
   version: "0.23.1"               # Harness version to be installed
   namespace: "harness"            # Namespace to install harness
   repository:                     # Helm chart repository to fetch chart from
@@ -39,6 +40,7 @@ harness:
   override_files: []              # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
   nginx: true                     # Set it to true to configure harness with nginx controller.
   istio: false                    # Set it to true to configure harness with istio. nginx and istio are mutually exclusive.
+  ingress_node_port: 32000
   modules:                        # Configure the modules to enable in the chart. 
     cd: true
     ci: true
