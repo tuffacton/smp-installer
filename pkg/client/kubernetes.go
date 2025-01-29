@@ -87,23 +87,28 @@ func (k *kubernetesClient) PreExec(ctx context.Context) error {
 		return err
 	}
 	profile := k.configStore.GetString(ctx, store.ProfileKey)
-	err = profiles.CopyFiles(profile, k.clientConfig.ContextDirectory, []string{"config.yaml"})
+	filesCopied, err := profiles.CopyInstallerFiles(profile, k.clientConfig.ContextDirectory)
 	if err != nil {
 		log.Err(err).Msgf("error copying profile files")
 		return err
 	}
-	profileConfig := make(map[string]interface{})
-	configData, err := os.ReadFile(path.Join(k.clientConfig.ContextDirectory, "config.yaml"))
-	if err != nil {
-		log.Err(err).Msgf("unable to read profile config file")
-		return err
+	for _, file := range filesCopied {
+		profileConfig := make(map[string]interface{})
+		configData, err := os.ReadFile(file)
+		if err != nil {
+			log.Err(err).Msgf("unable to read profile config file")
+			return err
+		}
+		err = yaml.Unmarshal(configData, &profileConfig)
+		if err != nil {
+			log.Err(err).Msgf("unable to unmarshal yaml data from profile config")
+			return err
+		}
+		err = k.configStore.AddAll(ctx, profileConfig)
+		if err != nil {
+			log.Err(err).Msgf("unable to add profile config to datastore")
+		}
 	}
-	err = yaml.Unmarshal(configData, &profileConfig)
-	if err != nil {
-		log.Err(err).Msgf("unable to unmarshal yaml data from profile config")
-		return err
-	}
-	err = k.configStore.AddAll(ctx, profileConfig)
 	renderer := render.NewTemplateRenderer(k.configStore, k.outputStore)
 	return renderer.Render(ctx, map[string]interface{}{}, k.clientConfig.ContextDirectory)
 }

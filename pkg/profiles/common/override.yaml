@@ -1,0 +1,47 @@
+global:
+  ci:
+    enabled: {{ default false .Config.harness.modules.ci }}
+  cd:
+    enabled: {{ default false .Config.harness.modules.cd }}
+  ff:
+    enabled: {{ default false .Config.harness.modules.ff }}
+  ccm:
+    enabled: {{ default false .Config.harness.modules.ccm }}
+  sto:
+    enabled: {{ default false .Config.harness.modules.sto }}
+  chaos:
+    enabled: {{ default false .Config.harness.modules.chaos }}
+  ssca:
+    enabled: {{ default false .Config.harness.modules.ssca }}
+  dbops:
+    enabled: {{ default false .Config.harness.modules.dbops }}
+  code:
+    enabled: {{ default false .Config.harness.modules.code }}
+  
+  airgap: {{ .Config.kubernetes.airgap | quote }}
+  
+  cg:
+    enabled: false
+  ingress:
+    hosts: 
+      - {{ .Output.dns.domain | quote }}
+    enabled: {{ .Config.harness.nginx }}
+    tls:
+      enabled: false
+  loadbalancerURL: {{ printf "http://%s" .Output.dns.domain }}
+
+platform:
+  bootstrap:
+    networking:
+      defaultbackend:
+        create: {{ .Config.harness.nginx }}
+      nginx:
+        create: {{ .Config.harness.nginx }}
+        loadBalancerEnabled: false
+        httpNodePort: {{ .Config.harness.ingress_node_port | quote }}
+#         service:
+#           annotations:
+# {{- if eq .Config.provider "aws" }}
+#             service.beta.kubernetes.io/aws-load-balancer-type: "alb"
+#             service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing" # Or "internal" for internal access
+# {{- end }}

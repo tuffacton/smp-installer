@@ -12,17 +12,26 @@ import (
 //go:embed small
 var SmallProfileFiles embed.FS
 
+//go:embed common
+var CommonProfileFiles embed.FS
+
+//go:embed pov
+var PovProfileFiles embed.FS
+
 var filesMap = map[string]embed.FS{
-	"small": SmallProfileFiles,
+	"small":  SmallProfileFiles,
+	"common": CommonProfileFiles,
+	"pov":    PovProfileFiles,
 }
 
-func CopyFiles(profile string, outDir string, filenames []string) error {
+func CopyFiles(profile string, outDir string, filenames []string) ([]string, error) {
 	os.MkdirAll(outDir, 0777)
 	profileFiles := filesMap[profile]
+	filesCopied := make([]string, 0)
 	files, err := profileFiles.ReadDir(profile)
 	if err != nil {
 		log.Err(err).Msgf("could not find %s directory", profile)
-		return err
+		return nil, err
 	}
 	for _, f := range files {
 		skipFile := false
@@ -34,16 +43,42 @@ func CopyFiles(profile string, outDir string, filenames []string) error {
 			data, err := profileFiles.ReadFile(path.Join(profile, f.Name()))
 			if err != nil {
 				log.Err(err).Msgf("cannot read file %s", f.Name())
-				return err
+				return nil, err
 			}
-			err = os.WriteFile(path.Join(outDir, f.Name()), data, 0666)
+			outputFileName := path.Join(outDir, profile+"-"+f.Name())
+			err = os.WriteFile(outputFileName, data, 0666)
 			if err != nil {
 				log.Err(err).Msgf("failed to copy file %s to directory %s", f.Name(), outDir)
-				return err
+				return nil, err
 			}
+			filesCopied = append(filesCopied, outputFileName)
 		} else {
 			log.Info().Msgf("skipping file %s", f.Name())
 		}
 	}
-	return nil
+	return filesCopied, nil
+}
+
+func CopyOverrideFiles(profile string, outDir string) ([]string, error) {
+	filesCopied, err := CopyFiles(profile, outDir, []string{"override.yaml"})
+	if err != nil {
+		return nil, err
+	}
+	commonFilesCopied, err := CopyFiles("common", outDir, []string{"override.yaml"})
+	if err != nil {
+		return nil, err
+	}
+	return append(commonFilesCopied, filesCopied...), nil
+}
+
+func CopyInstallerFiles(profile string, outDir string) ([]string, error) {
+	filesCopied, err := CopyFiles(profile, outDir, []string{"config.yaml"})
+	if err != nil {
+		return nil, err
+	}
+	commonFilesCopied, err := CopyFiles("common", outDir, []string{"config.yaml"})
+	if err != nil {
+		return nil, err
+	}
+	return append(commonFilesCopied, filesCopied...), nil
 }

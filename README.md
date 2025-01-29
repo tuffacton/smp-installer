@@ -5,7 +5,23 @@ Installer for Harness SMP
 - AWS: Supports EKS with ALB
 
 # Supported Profiles
-- small: The small profile configures harness to support 200 users with 50 parallel executions.
+
+| Profile | Resources          | Description                                      |
+| ------- | ------------------ | ------------------------------------------------ |
+| small   | 5 t2.2xlarge nodes | Supports 200 users with 50 concurrent executions |
+| pov     | 2 t2.2xlarge nodes | Supports 5 users with 1 execution at a time      |
+
+# Supported Features
+
+| Feature            | Description                                         | Supported Platform |
+| ------------------ | --------------------------------------------------- | ------------------ |
+| loadbalancer       | Creates loadbalancer                                | AWS (ALB)          |
+| kubernetes cluster | Creates kubernetes cluster with desired node config | AWS (EKS)          |
+| vpc                | Creates VPC                                         | AWS                |
+| airgap             | Creates egress rules to block outgoing traffic      | AWS                |
+| tls                | Create self signed certificate                      | AWS                |
+| helm chart         | Install harness helm chart with existing overrides  | AWS                |
+| dns                | Create hosted zone for existing domain              | AWS (Route53)      |
 
 # Quick Start
 
@@ -18,7 +34,7 @@ Installer for Harness SMP
   ```
   go build git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/cmd -o smp-installer
   ```
-3. Use the example.yaml as your configuration for the tool
+3. Use the example.yaml as your configuration reference for the tool
 4. Authenticate with AWS
   1. Go to AWS IAM Console
   2. Copy the access key and secret key of the user which has admin access to the AWS project
@@ -78,7 +94,7 @@ For passcode, please reach out to kapil.garg@harness.io
 ├── profiles                                        : Contains supported profile overrides
 │   ├── files.go
 │   └── small
-│       └── override-small.yaml
+│       └── override.yaml
 ```
 
 ## Adding new resource
@@ -114,4 +130,4 @@ Installer provides below built-in objects to be used in the templates.
             
             Example: {{ .Config.kubernetes.version }}
 2. `.Ouput`: This object can be used to refer to output exposed by any resource client. For example, profile override can refer to loadbalancer IP like `.Output.loadbalancer.ip` if loadbalancer client exposes the output.
-3. `.Self`: This object can be used to refer to data exposed by a client during its `Exec` hook.
+3. `.Self`: This object can be used to refer to data exposed by a client during its `PreExec` hook.

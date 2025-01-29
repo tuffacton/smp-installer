@@ -14,6 +14,49 @@ data "aws_instances" "kubernetes" {
 
 }
 
+locals {
+  http_listeners = {
+    http = {
+      port            = 80
+      protocol        = "HTTP"
+      forward = {
+        target_group_key = "smp-instance"
+      }
+    }
+  }
+  https_listeners = {
+    # http-https-redirect = {
+    #   port     = 443
+    #   protocol = "HTTPS"
+    #   forward = {
+    #     target_group_key = "smp-instance"
+    #   }
+    #   certificate_arn = "${var.existing_certificate_id == "" ? aws_acm_certificate.cert[0].arn : var.existing_certificate_id}"
+    # }
+  }
+  loadbalancer_listeners = merge(local.http_listeners, var.tls_enabled ? local.https_listeners : {})
+
+  security_group_ingress_rules_http = {
+    all_http = {
+      from_port   = 80
+      to_port     = 80
+      ip_protocol = "tcp"
+      description = "HTTP web traffic"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+  security_group_ingress_rules_https = {
+    all_https = {
+      from_port   = 443
+      to_port     = 443
+      ip_protocol = "tcp"
+      description = "HTTPS web traffic"
+      cidr_ipv4   = "0.0.0.0/0"
+    }
+  }
+  security_group_ingress_rules = merge(local.security_group_ingress_rules_http, var.tls_enabled ? local.security_group_ingress_rules_https : {})
+}
+
 module "alb" {
   source = "terraform-aws-modules/alb/aws"
 
@@ -22,22 +65,7 @@ module "alb" {
   subnets = var.subnets
 
   # Security Group
-  security_group_ingress_rules = {
-    all_http = {
-      from_port   = 80
-      to_port     = 80
-      ip_protocol = "tcp"
-      description = "HTTP web traffic"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
-    # all_https = {
-    #   from_port   = 443
-    #   to_port     = 443
-    #   ip_protocol = "tcp"
-    #   description = "HTTPS web traffic"
-    #   cidr_ipv4   = "0.0.0.0/0"
-    # }
-  }
+  security_group_ingress_rules = local.security_group_ingress_rules
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
@@ -45,25 +73,7 @@ module "alb" {
     }
   }
 
-  listeners = {
-    # http-https-redirect = {
-    #   port     = 80
-    #   protocol = "HTTP"
-    #   redirect = {
-    #     port        = "443"
-    #     protocol    = "HTTPS"
-    #     status_code = "HTTP_301"
-    #   }
-    # }
-    http = {
-      port            = 80
-      protocol        = "HTTP"
-
-      forward = {
-        target_group_key = "smp-instance"
-      }
-    }
-  }
+  listeners = local.loadbalancer_listeners
 
   target_groups = {
     smp-instance = {
@@ -95,6 +105,24 @@ resource "aws_lb_target_group_attachment" "kubernetes" {
   port             = var.harness_node_port
 }
 
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = module.alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "${var.existing_certificate_id == "" ? aws_acm_certificate.cert[0].arn : var.existing_certificate_id}"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = module.alb.target_groups["smp-instance"].arn
+  }
+  depends_on = [ aws_acm_certificate.cert, module.alb ]
+}
+
 output "dns_name" {
   value = module.alb.dns_name
+}
+
+output "dns_zone_id" {
+  value = module.alb.zone_id
 }

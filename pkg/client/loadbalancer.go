@@ -46,7 +46,12 @@ func (l *loadbalancerClient) PostExec(ctx context.Context) (map[string]interface
 		log.Err(err).Msgf("unable to retrieve loadbalancer ip")
 		return nil, err
 	}
-	return map[string]interface{}{"ip": lbip}, nil
+	lbzone, err := tofu.GetOutput(ctx, l.clientConfig.ContextDirectory, "dns_zone_id", ".")
+	if err != nil {
+		log.Err(err).Msgf("unable to retrieve loadbalancer zone")
+		return nil, err
+	}
+	return map[string]interface{}{"ip": lbip, "zone_id": lbzone}, nil
 }
 
 // PreExec implements ResourceClient.

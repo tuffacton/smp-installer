@@ -10,8 +10,33 @@ variable "domain" {
   default     = "abc.com"
 }
 
+variable "vpc" {
+  description = "vpc to create loadbalancer in"
+  type        = string
+}
+
 variable "lbdns" {
   description = "Domain of ALB"
   type        = string
   default     = "abc.com"
+}
+
+variable "lbzone" {
+  description = "Zone id of ALB"
+  type        = string
+}
+
+variable "zone_id" {
+  description = "Route53 zone id"
+  type        = string
+}
+
+variable "zone_name" {
+  description = "Route53 zone name"
+  type        = string
+}
+
+variable "private_zone" {
+  description = "Route53 zone is private"
+  type        = bool
 }

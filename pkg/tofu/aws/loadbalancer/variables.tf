@@ -24,3 +24,23 @@ variable "harness_node_port" {
   description = "Node port of ingress controller for harness"
   type = number
 }
+
+variable "tls_enabled" {
+  description = "Enable TLS for the load balancer"
+  type = bool
+}
+
+variable "existing_certificate_id" {
+  description = "Existing certificate ARN to use for the load balancer"
+  type = string
+}
+
+variable "domain_name" {
+  description = "Domain name for the certificate"
+  type = string
+}
+
+variable "subject_alternative_names" {
+  description = "Subject alternative names for the certificate"
+  type = list(string)
+}
