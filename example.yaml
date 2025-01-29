@@ -38,6 +38,7 @@ dns:
   # zone_name: ""                 # Set this to existing zone name, if manage is set to false
   # private_zone: true            # Set it to true to create a private zone in AWS route53/GCP cloud DNS
 
+### Not supported yet
 secrets:
   manage: true                    # If set to false, installer will not execute tofu module for secrets
   migrate: true                   # If set to true, installer will migrate existing kubernetes secrets to the AWS/GCP secret manager. Use this for upgrades
@@ -52,7 +53,10 @@ harness:
   override_files: []              # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
   nginx: true                     # Set it to true to configure harness with nginx controller.
   istio: false                    # Set it to true to configure harness with istio. nginx and istio are mutually exclusive.
-  ingress_node_port: 32000
+  ingress_node_port: 32000        # Node port to expose ingress controller. This is used when nginx is enabled.
   modules:                        # Configure the modules to enable in the chart. 
     cd: true
-    ci: true
+    ci: false
+  licenses:                       # Configure the licenses for cg and ng
+    ng: ""
+    cg: ""

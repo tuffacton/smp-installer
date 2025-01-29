@@ -88,19 +88,15 @@ ci:
   ci-manager:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: "512m"
+      memory: "1024m"
     replicaCount: 1
     resources:
       limits:
-        memory: 1Gi
+        memory: 1.5Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 1.5Gi
   ti-service:
     autoscaling:
       enabled: false
@@ -121,12 +117,8 @@ platform:
   access-control:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: 512m
+      memory: 768m
     replicaCount: 1
     resources:
       limits:
@@ -138,12 +130,14 @@ platform:
     autoscaling:
       enabled: false
     replicaCount: 1
+    config:
+      MEMORY: "256m"
     resources:
       limits:
-        memory: 256Mi
+        memory: 384Mi
       requests:
         cpu: 100m
-        memory: 256Mi
+        memory: 384Mi
   bootstrap:
     database:
       clickhouse:
@@ -160,15 +154,20 @@ platform:
             memory: 1024Mi
       mongodb:
         extraFlags:
-          - "--wiredTigerCacheSizeGB=0.3"
+          - "--wiredTigerCacheSizeGB=0.5"
         replicaCount: 3
         resources:
           limits:
             cpu: 250m
-            memory: 1Gi
+            memory: 1.5Gi
           requests:
             cpu: 250m
-            memory: 1Gi
+            memory: 1.5Gi
+        livenessProbe:
+          timeoutSeconds: 15
+        readinessProbe:
+          timeoutSeconds: 15
+          periodSeconds: 20
       postgresql:
         primary:
           resources:
@@ -230,8 +229,8 @@ platform:
   change-data-capture:
     autoscaling:
       enabled: false
-    java:
-      memory: 256
+    config:
+      MEMORY: "256"
     replicaCount: 1
     resources:
       limits:
@@ -239,6 +238,10 @@ platform:
       requests:
         cpu: 100m
         memory: 512Mi
+    startupProbe:
+      timeoutSeconds: 10
+      periodSeconds: 15
+      initialDelaySeconds: 30
   delegate-proxy:
     autoscaling:
       enabled: false
@@ -252,35 +255,27 @@ platform:
   gateway:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: 512
+      memory: 1024
     replicaCount: 1
     resources:
       limits:
-        memory: 1Gi
+        memory: 1.5Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 1.5Gi
   harness-manager:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: "512"
+      memory: "1024"
     replicaCount: 1
     resources:
       limits:
-        memory: 1Gi
+        memory: 1.5Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 1.5Gi
   log-service:
     replicaCount: 1
     resources:
@@ -294,10 +289,12 @@ platform:
       enabled: false
     replicaCount: 1
     java:
-      memory: "1024"
+      memory: "768"
+    config:
+      MEMORY: "768"
     resources:
       limits:
-        memory: 1536Mi
+        memory: 1024Mi
       requests:
         cpu: 100m
         memory: 1024Mi      
@@ -351,62 +348,56 @@ platform:
   ng-manager:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: "512m"
+      memory: "1536m"
     replicaCount: 1
     resources:
       limits:
-        memory: 1Gi
+        memory: 2Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 2Gi
+    probes:
+      readinessProbe:
+        timeoutSeconds: 5
+        periodSeconds: 10
+      startupProbe:
+        initialDelaySeconds: 60
+        timeoutSeconds: 5
+        periodSeconds: 10
   pipeline-service:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: "512m"
+      memory: "1024m"
     replicaCount: 1
     resources:
       limits:
-        memory: 1Gi
+        memory: 1.5Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 1.5Gi
   queue-service:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
     resources:
       limits:
-        memory: 250Mi
+        memory: 500Mi
       requests:
         cpu: 100m
-        memory: 250Mi
+        memory: 500Mi
   platform-service:
     autoscaling:
       enabled: false
-      minReplicas: 1
-      maxReplicas: 2
-      targetCPU: 80
-      targetMemory: 80
     java:
-      memory: "512m"
+      memory: "1024m"
     replicaCount: 1
     resources:
       limits:
-        memory: 1Gi
+        memory: 1.5Gi
       requests:
         cpu: 100m
-        memory: 1Gi
+        memory: 1.5Gi
   scm-service:
     autoscaling:
       enabled: false
@@ -421,14 +412,14 @@ platform:
     autoscaling:
       enabled: false
     java:
-      memory: "512m"
+      memory: "1024m"
     replicaCount: 1
     resources:
       limits:
-        memory: 1024Mi
+        memory: 1.5Gi
       requests:
         cpu: 100m
-        memory: 1024Mi
+        memory: 1.5Gi
   ui:
     autoscaling:
       enabled: false

@@ -26,7 +26,9 @@ func ExecuteCommand(ctx context.Context, outDir string, icmd InfraCommand) error
 	if icmd != InitCommand && icmd != PlanCommand {
 		cmd.Args = append(cmd.Args, extraArgs...)
 	}
-	stdout, err := cmd.Output()
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
 	if err != nil {
 		log.Err(err).Msgf("infra %s command failed with output: %s", icmd, err.(*exec.ExitError).Stderr)
 		os.Chdir(currentDir)
@@ -34,7 +36,7 @@ func ExecuteCommand(ctx context.Context, outDir string, icmd InfraCommand) error
 	}
 
 	log.Info().Msgf("infra %s command output", icmd)
-	log.Info().Msg(string(stdout))
+	// log.Info().Msg(string(stdout))
 
 	os.Chdir(currentDir)
 	return nil

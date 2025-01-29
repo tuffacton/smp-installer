@@ -38,3 +38,9 @@ variable "harness_node_port" {
   description = "Node port of ingress controller for harness"
   type = number
 }
+
+variable "airgap" {
+  description = "Airgap installation"
+  type = bool
+  default = false
+}

@@ -82,7 +82,7 @@ func (c *memoryStore) Set(ctx context.Context, path string, value interface{}) e
 
 // Set implements DataStore.
 func (c *memoryStore) AddAll(ctx context.Context, data map[string]interface{}) error {
-	c.data = util.MergeMaps(c.data, data)
+	c.data = util.MergeMaps(data, c.data)
 	return nil
 }
 
