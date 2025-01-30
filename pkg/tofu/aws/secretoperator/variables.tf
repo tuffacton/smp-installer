@@ -9,16 +9,6 @@ variable "cluster_name" {
   type = string
 }
 
-variable "secrets_in_k8s" {
-  description = "secret names to find from kubernetes"
-  type = list(string)
-}
-
-variable "secret_keys" {
-  description = "secret names to create in secrets manager"
-  type = list(string)
-}
-
 variable "namespace" {
   description = "namespace to deploy external operator"
   type = string
@@ -26,10 +16,5 @@ variable "namespace" {
 
 variable "harness_namespace" {
   description = "namespace where harness is deployed"
-  type = string
-}
-
-variable "service_account" {
-  description = "service account to use for operator"
   type = string
 }

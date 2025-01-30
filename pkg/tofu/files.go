@@ -19,15 +19,23 @@ func CopyFiles(srcDir string, outDir string) error {
 		return err
 	}
 	for _, f := range files {
-		data, err := AWSTofuFiles.ReadFile(path.Join(srcDir, f.Name()))
-		if err != nil {
-			log.Err(err).Msgf("cannot read file %s", f.Name())
-			return err
-		}
-		err = os.WriteFile(path.Join(outDir, f.Name()), data, 0666)
-		if err != nil {
-			log.Err(err).Msgf("failed to copy file %s to directory %s", f.Name(), outDir)
-			return err
+		if f.IsDir() {
+			os.MkdirAll(path.Join(outDir, f.Name()), 0777)
+			err := CopyFiles(path.Join(srcDir, f.Name()), path.Join(outDir, f.Name()))
+			if err != nil {
+				return err
+			}
+		} else {
+			data, err := AWSTofuFiles.ReadFile(path.Join(srcDir, f.Name()))
+			if err != nil {
+				log.Err(err).Msgf("cannot read file %s", f.Name())
+				return err
+			}
+			err = os.WriteFile(path.Join(outDir, f.Name()), data, 0666)
+			if err != nil {
+				log.Err(err).Msgf("failed to copy file %s to directory %s", f.Name(), outDir)
+				return err
+			}
 		}
 	}
 	return nil

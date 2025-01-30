@@ -37,6 +37,23 @@ global:
       enabled: false
   loadbalancerURL: {{ printf "http://%s" .Output.dns.domain }}
 
+{{ if .Output.secrets }}
+  database:
+{{- if .Output.secrets.minio -}}
+      {{ .Output.secrets.minio | nindent 6 }}
+{{- end }}
+{{- if .Output.secrets.mongo -}}
+      {{ .Output.secrets.mongo | nindent 6 }}
+{{- end }}
+{{- if .Output.secrets.postgres -}}
+      {{ .Output.secrets.postgres | nindent 6 }}
+{{- end }}
+{{- if .Output.secrets.timescaledb -}}
+      {{ .Output.secrets.timescaledb | nindent 6 }}
+{{- end }}
+{{- end }}
+
+
 platform:
   bootstrap:
     networking:

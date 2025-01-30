@@ -96,3 +96,21 @@ func (t *TemplateRenderer) readTemplates(templateDir string) map[string]string {
 	}
 	return templates
 }
+
+func RenderString(ctx context.Context, data map[string]interface{}, templateString string) (string, error) {
+	tpl := template.New("gotpl")
+	tpl.Option("missingkey=zero")
+	tpl.Funcs(sprig.FuncMap())
+	var buf strings.Builder
+	_, err := tpl.New("string").Parse(templateString)
+	if err != nil {
+		log.Err(err).Msgf("failed to parse template string")
+		return "", err
+	}
+	err = tpl.ExecuteTemplate(&buf, "string", data)
+	if err != nil {
+		log.Err(err).Msgf("failed to execute template for string")
+		return "", err
+	}
+	return buf.String(), nil
+}

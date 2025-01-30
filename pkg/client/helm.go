@@ -32,7 +32,22 @@ func (h *helmClient) Exec(ctx context.Context) error {
 
 // PostExec implements ResourceClient.
 func (h *helmClient) PostExec(ctx context.Context) (map[string]interface{}, error) {
-	return nil, nil
+	if !h.clientConfig.IsManaged {
+		return map[string]interface{}{}, nil
+	}
+	return map[string]interface{}{}, nil
+	// manifestOutput, err := tofu.GetOutput(ctx, h.clientConfig.ContextDirectory, "manifests", ".")
+	// if err != nil {
+	// 	log.Err(err).Msgf("unable to retrieve helm release output")
+	// 	return nil, err
+	// }
+	// manifestJson := make(map[string]interface{})
+	// err = json.Unmarshal([]byte(manifestOutput), &manifestJson)
+	// if err != nil {
+	// 	log.Err(err).Msgf("unable to unmarshal helm release output")
+	// 	return nil, err
+	// }
+	// return map[string]interface{}{"manifests": manifestJson}, nil
 }
 
 // PreExec implements ResourceClient.

@@ -38,8 +38,8 @@ func (l *loadbalancerClient) Exec(ctx context.Context) error {
 func (l *loadbalancerClient) PostExec(ctx context.Context) (map[string]interface{}, error) {
 	if !l.clientConfig.IsManaged {
 		existingIp := l.configStore.GetString(ctx, "loadbalancer.ip")
-		l.outputStore.Set(ctx, "loadbalancer.ip", existingIp)
-		return nil, nil
+		existingZone := l.configStore.GetString(ctx, "loadbalancer.zone_id")
+		return map[string]interface{}{"ip": existingIp, "zone_id": existingZone}, nil
 	}
 	lbip, err := tofu.GetOutput(ctx, l.clientConfig.ContextDirectory, "dns_name", ".")
 	if err != nil {

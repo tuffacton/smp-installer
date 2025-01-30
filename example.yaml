@@ -1,17 +1,17 @@
-profile: "pov"                  # Profile to configure harness resources and cluster resources. Please select the supported profile.
-output_directory: "./dist1"       # Output directory to store rendered files and outputs
+profile: "pov" # Profile to configure harness resources and cluster resources. Please select the supported profile.
+output_directory: "./dist1" # Output directory to store rendered files and outputs
 
-provider: "aws"                   # Cloud provider to install harness in. Please select the supported profile
-region: "us-east-1"               # Region to install harness in
+provider: "aws" # Cloud provider to install harness in. Please select the supported profile
+region: "us-east-1" # Region to install harness in
 
 ### Creates Kubernetes cluster
-### For AWS, it creates an EKS cluster 
-kubernetes:                       
-  manage: true                    # If set to false, installer will not execute tofu module for kubernetes cluster
+### For AWS, it creates an EKS cluster
+kubernetes:
+  manage: true # If set to false, installer will not execute tofu module for kubernetes cluster
   # cluster_name: ""              # Set this to existing cluster if manage is set to false
-  version: "1.29"                 # Kubernetes version to create the cluster
-  airgap: false                   # Set it to true to install harness in airgap mode
-  nodes: {}                       # Override nodes configuration according to your needs. By default, installer will set these values based on profile
+  version: "1.29" # Kubernetes version to create the cluster
+  airgap: false # Set it to true to install harness in airgap mode
+  nodes: {} # Override nodes configuration according to your needs. By default, installer will set these values based on profile
   #   machine_type: "t2.2xlarge"
   #   initial_nodes: 5
   #   minimum_nodes: 1
@@ -20,43 +20,48 @@ kubernetes:
 
 ### Creates loadbalancer
 ### For AWS, it creates an ALB
-loadbalancer:                     
-  manage: true                    # If set to false, installer will not execute tofu module for loadbalancer
-  availability_zones: 2           # Number of availability zones to create the cluster in
+loadbalancer:
+  manage: true # If set to false, installer will not execute tofu module for loadbalancer
+  availability_zones: 2 # Number of availability zones to create the cluster in
   # ip: ""                        # Set this to loadbalancer IP or domain if manage is set to false
   tls:
-    enabled: true                  # Set it to true to enable TLS for the domain.
-    existing_certificate_id: ""    # Set this to existing certificate id/arn, if empty installer will create a new self-signed certificate
-    subject_alternative_names: []  # Subject alternative names for the certificate
+    enabled: true # Set it to true to enable TLS for the domain.
+    existing_certificate_id: "" # Set this to existing certificate id/arn, if empty installer will create a new self-signed certificate
+    subject_alternative_names: [] # Subject alternative names for the certificate
 
-### DNS related configuration. 
+### DNS related configuration.
 ### For AWS, it manages the Route53 configuration. It creates a private zone in route53.
-dns:                              
-  manage: false                    # If set to false, installer will not execute tofu module for dns
+dns:
+  manage: false # If set to false, installer will not execute tofu module for dns
   domain: "" # Domain to be used for harness configuration. If empty, installer will use loadbalancer IP/Domain to configure endpoints.
   # zone_id: ""                   # Set this to existing zone id, if manage is set to false
   # zone_name: ""                 # Set this to existing zone name, if manage is set to false
   # private_zone: true            # Set it to true to create a private zone in AWS route53/GCP cloud DNS
 
-### Not supported yet
+### Install external-secrets operator to manage secrets in cloud secret manager
+secretoperator:
+  manage: true # If set to false, installer will not execute tofu module for secretoperator
+  kubernetes_service_account: "" # Service account associated with AWS IAM role for secretoperator
+  namespace: "external-secrets" # Namespace to install external-secrets operator
+
+### Manage secrets of databases in cloud secret manager
 secrets:
-  manage: true                    # If set to false, installer will not execute tofu module for secrets
-  migrate: true                   # If set to true, installer will migrate existing kubernetes secrets to the AWS/GCP secret manager. Use this for upgrades
+  manage: true # If set to false, installer will not execute tofu module for secrets
 
 ### Harness helm chart configuration
 harness:
   manage: true
-  version: "0.23.1"               # Harness version to be installed
-  namespace: "harness"            # Namespace to install harness
-  repository:                     # Helm chart repository to fetch chart from
+  version: "0.23.1" # Harness version to be installed
+  namespace: "harness" # Namespace to install harness
+  repository: # Helm chart repository to fetch chart from
     url: "https://harness.github.io/helm-charts"
-  override_files: []              # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
-  nginx: true                     # Set it to true to configure harness with nginx controller.
-  istio: false                    # Set it to true to configure harness with istio. nginx and istio are mutually exclusive.
-  ingress_node_port: 32000        # Node port to expose ingress controller. This is used when nginx is enabled.
-  modules:                        # Configure the modules to enable in the chart. 
+  override_files: [] # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
+  nginx: true # Set it to true to configure harness with nginx controller.
+  istio: false # Set it to true to configure harness with istio. nginx and istio are mutually exclusive.
+  ingress_node_port: 32000 # Node port to expose ingress controller. This is used when nginx is enabled.
+  modules: # Configure the modules to enable in the chart.
     cd: true
     ci: false
-  licenses:                       # Configure the licenses for cg and ng
+  licenses: # Configure the licenses for cg and ng
     ng: ""
     cg: ""
