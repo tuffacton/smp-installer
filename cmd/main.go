@@ -77,6 +77,7 @@ func newSyncCommand() *cobra.Command {
 			outputStore := store.NewMemoryStore()
 			allCmds := getResourceCommands(configStore)
 			for _, cmd := range allCmds {
+				log.Info().Msgf("----------------------------- Sync step %s -----------------------------", cmd.Name())
 				err = cmd.Sync(ctx, configStore, outputStore)
 				if err != nil {
 					log.Err(err).Msgf("step %s failed", cmd.Name())
@@ -94,11 +95,12 @@ func getResourceCommands(configStore store.DataStore) []resources.ResourceComman
 	resourceCommands = append(resourceCommands, resources.NewKubernetesCommand())
 	resourceCommands = append(resourceCommands, resources.NewLoadbalancerCommand())
 	resourceCommands = append(resourceCommands, resources.NewDnsCommand())
-	resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
 	resourceCommands = append(resourceCommands, resources.NewSecretOperatorCommand())
 	externalSecretsEnabled := configStore.GetBool(context.Background(), "secrets.manage")
 	if externalSecretsEnabled {
 		resourceCommands = append(resourceCommands, resources.NewSecretsCommand())
+		resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
+	} else {
 		resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
 	}
 	return resourceCommands

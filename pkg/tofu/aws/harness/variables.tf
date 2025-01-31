@@ -30,3 +30,9 @@ variable "chart_version" {
   description = "chart version to install harness"
   type        = string
 }
+
+variable "debug" {
+  description = "debug mode"
+  type        = bool
+  default     = false 
+}

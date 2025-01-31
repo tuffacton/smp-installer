@@ -18,6 +18,7 @@ func (l *harnessCommand) Name() string {
 
 // Sync implements ResourceCommand.
 func (l *harnessCommand) Sync(ctx context.Context, configStore store.DataStore, outputStore store.DataStore) error {
+	// externalSecretsEnabled := configStore.GetBool(context.Background(), "secrets.manage")
 	clientConfig := CreateClientConfig(ctx, l, configStore)
 	helmClient := client.NewHelmClient(clientConfig, configStore, outputStore)
 	err := helmClient.PreExec(ctx)

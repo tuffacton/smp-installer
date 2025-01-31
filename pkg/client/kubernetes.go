@@ -43,6 +43,8 @@ func (k *kubernetesClient) PostExec(ctx context.Context) (output map[string]inte
 	clusterName := ""
 	vpc := ""
 	subnets := []string{}
+	oidcProvider := ""
+	oidcIssuer := ""
 	if !k.clientConfig.IsManaged {
 		clusterName = k.configStore.GetString(ctx, "kubernetes.cluster_name")
 		vpc = k.configStore.GetString(ctx, "kubernetes.vpc")
@@ -50,6 +52,8 @@ func (k *kubernetesClient) PostExec(ctx context.Context) (output map[string]inte
 		if err == nil {
 			subnets = subnetsFromConfig.([]string)
 		}
+		oidcProvider = k.configStore.GetString(ctx, "kubernetes.oidc_provider_arn")
+		oidcIssuer = k.configStore.GetString(ctx, "kubernetes.oidc_provider_url")
 	} else {
 		var err error = nil
 		clusterName, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "clustername", ".")
@@ -72,11 +76,23 @@ func (k *kubernetesClient) PostExec(ctx context.Context) (output map[string]inte
 			log.Err(err).Msgf("unable to retrieve subnets from tofu output")
 			return nil, err
 		}
+		oidcProvider, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "oidc_provider_arn", ".")
+		if err != nil {
+			log.Err(err).Msgf("unable to retrieve oidc provider from tofu output")
+			return nil, err
+		}
+		oidcIssuer, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "oidc_provider_url", ".")
+		if err != nil {
+			log.Err(err).Msgf("unable to retrieve oidc issuer from tofu output")
+			return nil, err
+		}
 	}
 	return map[string]interface{}{
-		"cluster_name": clusterName,
-		"vpc":          vpc,
-		"subnets":      subnets,
+		"cluster_name":      clusterName,
+		"vpc":               vpc,
+		"subnets":           subnets,
+		"oidc_provider_arn": oidcProvider,
+		"oidc_provider_url": oidcIssuer,
 	}, nil
 }
 

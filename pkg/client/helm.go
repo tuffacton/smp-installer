@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path"
+	"reflect"
 
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/profiles"
 	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/render"
@@ -99,14 +100,24 @@ func (h *helmClient) mergeOverrides(ctx context.Context,
 	if err != nil {
 		log.Err(err).Msgf("unable to retrieve existing override files")
 	} else {
-		existingOverrides, ok := value.([]string)
+		existingOverrides, ok := value.([]interface{})
 		if ok {
-			overrideFiles = append(overrideFiles, existingOverrides...)
+			log.Info().Msgf("found existing override files %v", existingOverrides)
+			for _, v := range existingOverrides {
+				if s, ok := v.(string); ok {
+					overrideFiles = append(overrideFiles, s)
+				} else {
+					log.Warn().Msgf("existing override file is not of type string: %v: skipping", reflect.TypeOf(v))
+				}
+			}
+		} else {
+			log.Warn().Msgf("existing override files of type %v: skipping", reflect.TypeOf(value))
 		}
 	}
 	overrideFiles = append(overrideFiles, profileOverrideFiles...)
 	var master = make(map[string]interface{})
 	for _, f := range overrideFiles {
+		log.Info().Msgf("reading override file %s", f)
 		bs, err := os.ReadFile(f)
 		var override = make(map[string]interface{})
 		if err != nil {

@@ -19,8 +19,6 @@ mongo:
 minio:
   - S3_USER
   - S3_PASSWORD
-postgres:
-  - POSTGRES_PASSWORD
 timescaledb:
   - TIMESCALEDB_ADMIN_PASSWORD
   - TIMESCALEDB_PASSWORD
@@ -35,22 +33,21 @@ var externalSecretTemplate = `
         - secretStore:
             name: harness-secret-store
             kind: SecretStore
-          remote_keys:
-          {{- range .secrets }}
-            - {{ . }}:
-                name: {{ . }}
-                property: ""
+          remoteKeys:
+          {{- range $key, $value := .secrets }}
+            {{ $value }}:
+              name: {{ $key }}
+              property: ""
           {{- end }}
 `
 
-var k8sSecrets = []string{"harness-secrets", "minio", "mongodb-replicaset-chart", "postgres"}
+var k8sSecrets = []string{"harness-secrets", "minio", "mongodb-replicaset-chart"}
 var k8sSecretKeyToExternalSecretKey = map[string]string{
 	"mongodb-root-password":        "MONGO_PASSWORD",
 	"mongodb-replica-set-key":      "MONGO_REPLICA_SET_KEY",
 	"mongodbUsername":              "MONGO_USER",
 	"root-password":                "S3_PASSWORD",
 	"root-user":                    "S3_USER",
-	"postgres-password":            "POSTGRES_PASSWORD",
 	"timescaledbAdminPassword":     "TIMESCALEDB_ADMIN_PASSWORD",
 	"timescaledbPostgresPassword":  "TIMESCALEDB_PASSWORD",
 	"PATRONI_REPLICATION_PASSWORD": "TIMESCALEDB_REPLICATION_PASSWORD",
@@ -79,11 +76,22 @@ func (s *secretsClient) PostExec(ctx context.Context) (map[string]interface{}, e
 		log.Err(err).Msgf("unable to unmarshal secrets config")
 		return nil, err
 	}
+	secretToExtSecret := make(map[string]string)
+	for k8sSecretKey, extSecretKey := range k8sSecretKeyToExternalSecretKey {
+		secretToExtSecret[extSecretKey] = k8sSecretKey
+	}
 	outputData := make(map[string]interface{})
 	for service, secrets := range serviceToSecrets {
 		data := make(map[string]interface{})
 		data["service"] = service
-		data["secrets"] = secrets
+		secretsMap := make(map[string]string)
+		for _, secret := range secrets.([]interface{}) {
+			secretName := secret.(string)
+			if extSecretKey, ok := secretToExtSecret[secretName]; ok {
+				secretsMap[extSecretKey] = secretName
+			}
+		}
+		data["secrets"] = secretsMap
 		extSecretValue, err := render.RenderString(ctx, data, externalSecretTemplate)
 		if err != nil {
 			log.Err(err).Msgf("unable to render external secret template")

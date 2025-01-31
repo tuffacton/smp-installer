@@ -18,6 +18,7 @@ provider "kubernetes" {
 }
 
 provider "helm" {
+  debug = var.debug
   kubernetes {
     host                   = data.aws_eks_cluster.kubernetes.endpoint
     cluster_ca_certificate = base64decode(data.aws_eks_cluster.kubernetes.certificate_authority[0].data)

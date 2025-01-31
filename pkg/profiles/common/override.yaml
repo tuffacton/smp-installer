@@ -36,6 +36,12 @@ global:
     tls:
       enabled: false
   loadbalancerURL: {{ printf "http://%s" .Output.dns.domain }}
+{{ if .Config.monitoring.enabled }}
+  monitoring:
+    enabled: true
+    port: 8889
+    path: /metrics
+{{- end }}
 
 {{ if .Output.secrets }}
   database:
@@ -69,3 +75,34 @@ platform:
 #             service.beta.kubernetes.io/aws-load-balancer-type: "alb"
 #             service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing" # Or "internal" for internal access
 # {{- end }}
+{{ if .Config.monitoring.enabled }}
+    database:
+      mongodb:
+        metrics:
+          enabled: true
+        podAnnotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: '9216'
+          prometheus.io/scrape: 'true'
+      redis:
+        metrics:
+          enabled: true
+        podAnnotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: '9121'
+          prometheus.io/scrape: 'true'
+      timescaledb:
+        prometheus:
+          enabled: true
+        podAnnotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: '9187'
+          prometheus.io/scrape: 'true'
+      postgresql:
+        metrics:
+          enabled: true
+        podAnnotations:
+          prometheus.io/path: /metrics
+          prometheus.io/port: '9187'
+          prometheus.io/scrape: 'true'
+{{- end }}

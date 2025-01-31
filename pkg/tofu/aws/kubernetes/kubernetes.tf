@@ -111,3 +111,11 @@ module "irsa-ebs-csi" {
 output clustername {
   value = local.cluster_name
 }
+
+output "oidc_provider_arn" {
+  value = module.eks.oidc_provider_arn
+}
+
+output "oidc_provider_url" {
+  value = module.eks.oidc_provider
+}

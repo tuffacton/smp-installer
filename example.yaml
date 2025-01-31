@@ -16,16 +16,14 @@ kubernetes:
   #   initial_nodes: 5
   #   minimum_nodes: 1
   #   maximum_nodes: 5
-  #   availability_zones: 2
 
 ### Creates loadbalancer
 ### For AWS, it creates an ALB
 loadbalancer:
   manage: true # If set to false, installer will not execute tofu module for loadbalancer
-  availability_zones: 2 # Number of availability zones to create the cluster in
   # ip: ""                        # Set this to loadbalancer IP or domain if manage is set to false
   tls:
-    enabled: true # Set it to true to enable TLS for the domain.
+    enabled: true # Set it to true to enable TLS for the domain. 
     existing_certificate_id: "" # Set this to existing certificate id/arn, if empty installer will create a new self-signed certificate
     subject_alternative_names: [] # Subject alternative names for the certificate
 
@@ -39,14 +37,25 @@ dns:
   # private_zone: true            # Set it to true to create a private zone in AWS route53/GCP cloud DNS
 
 ### Install external-secrets operator to manage secrets in cloud secret manager
+### The secrets operator is installed using helm chart
+### For more details, refer to https://external-secrets.io
 secretoperator:
   manage: true # If set to false, installer will not execute tofu module for secretoperator
-  kubernetes_service_account: "" # Service account associated with AWS IAM role for secretoperator
+  kubernetes_service_account: "" # Kubernetes service account associated with IAM role to access cloud secret manager. If not provided, installer will create a new service account.
   namespace: "external-secrets" # Namespace to install external-secrets operator
 
 ### Manage secrets of databases in cloud secret manager
+### The secrets are stored in cloud secret manager and accessed by harness using external-secrets operator
+### Currently, the supported databases are minio, mongo, and timescaledb
 secrets:
   manage: true # If set to false, installer will not execute tofu module for secrets
+
+### Install monitoring stack
+### The monitoring stack includes prometheus, grafana, and alertmanager
+monitoring:
+  manage: true # If set to false, installer will not install monitoring stack
+  enabled: true # Set it to true to enable monitoring configuration in harness
+  namespace: "monitoring" # Namespace to install monitoring stack
 
 ### Harness helm chart configuration
 harness:
@@ -55,7 +64,10 @@ harness:
   namespace: "harness" # Namespace to install harness
   repository: # Helm chart repository to fetch chart from
     url: "https://harness.github.io/helm-charts"
-  override_files: [] # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
+
+  # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
+  override_files: 
+    - "/Users/kapilgarg/harness-smp-installer/override.yaml"
   nginx: true # Set it to true to configure harness with nginx controller.
   istio: false # Set it to true to configure harness with istio. nginx and istio are mutually exclusive.
   ingress_node_port: 32000 # Node port to expose ingress controller. This is used when nginx is enabled.

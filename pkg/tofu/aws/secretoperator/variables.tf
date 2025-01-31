@@ -18,3 +18,13 @@ variable "harness_namespace" {
   description = "namespace where harness is deployed"
   type = string
 }
+
+variable "oidc_provider_arn" {
+  description = "OIDC provider for EKS cluster"
+  type = string
+}
+
+variable "oidc_provider_url" {
+  description = "OIDC issuer URL for EKS cluster"
+  type = string
+}
