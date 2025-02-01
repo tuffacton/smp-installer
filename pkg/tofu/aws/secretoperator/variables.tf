@@ -28,3 +28,9 @@ variable "oidc_provider_url" {
   description = "OIDC issuer URL for EKS cluster"
   type = string
 }
+
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+  default     = {}
+}

@@ -75,7 +75,7 @@ func newSyncCommand() *cobra.Command {
 			ctx := context.Background()
 			configStore := store.NewMemoryStoreWithData(config)
 			outputStore := store.NewMemoryStore()
-			allCmds := getResourceCommands(configStore)
+			allCmds := getResourceCommands()
 			for _, cmd := range allCmds {
 				log.Info().Msgf("----------------------------- Sync step %s -----------------------------", cmd.Name())
 				err = cmd.Sync(ctx, configStore, outputStore)
@@ -90,18 +90,13 @@ func newSyncCommand() *cobra.Command {
 	return cmd
 }
 
-func getResourceCommands(configStore store.DataStore) []resources.ResourceCommand {
+func getResourceCommands() []resources.ResourceCommand {
 	resourceCommands := make([]resources.ResourceCommand, 0)
 	resourceCommands = append(resourceCommands, resources.NewKubernetesCommand())
 	resourceCommands = append(resourceCommands, resources.NewLoadbalancerCommand())
 	resourceCommands = append(resourceCommands, resources.NewDnsCommand())
 	resourceCommands = append(resourceCommands, resources.NewSecretOperatorCommand())
-	externalSecretsEnabled := configStore.GetBool(context.Background(), "secrets.manage")
-	if externalSecretsEnabled {
-		resourceCommands = append(resourceCommands, resources.NewSecretsCommand())
-		resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
-	} else {
-		resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
-	}
+	resourceCommands = append(resourceCommands, resources.NewSecretsCommand())
+	resourceCommands = append(resourceCommands, resources.NewHarnessCommand())
 	return resourceCommands
 }

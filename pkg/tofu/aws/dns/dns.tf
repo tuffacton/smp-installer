@@ -19,9 +19,7 @@ module "zones" {
     }
   }
 
-  tags = {
-    ManagedBy = "Terraform"
-  }
+  tags = var.tags
 }
 
 module "records" {

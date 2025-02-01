@@ -28,6 +28,7 @@ locals {
 resource "aws_secretsmanager_secret" "secrets" {
   for_each = local.secrets_to_create
   name     = each.key
+  tags = var.tags
 }
 
 resource "aws_secretsmanager_secret_version" "secertValues" {

@@ -3,6 +3,8 @@ output_directory: "./dist1" # Output directory to store rendered files and outpu
 
 provider: "aws" # Cloud provider to install harness in. Please select the supported profile
 region: "us-east-1" # Region to install harness in
+tags: # Tags to associate with all resources created by installer
+  harness: "smp"
 
 ### Creates Kubernetes cluster
 ### For AWS, it creates an EKS cluster
@@ -53,9 +55,18 @@ secrets:
 ### Install monitoring stack
 ### The monitoring stack includes prometheus, grafana, and alertmanager
 monitoring:
-  manage: true # If set to false, installer will not install monitoring stack
+  manage: true # If set to false, installer will not install prometheus and grafana helm charts
   enabled: true # Set it to true to enable monitoring configuration in harness
   namespace: "monitoring" # Namespace to install monitoring stack
+  prometheus_chart_repository: "" # Prometheus helm chart repository to fetch chart from. Default: oci://registry-1.docker.io/bitnamicharts
+  prometheus_chart_name: "" # Prometheus helm chart name to install. Default: kube-prometheus
+  prometheus_chart_version: "10.2.5" # Prometheus helm chart version to install. Set to empty to skip installation
+  prometheus_override_file: "" # Prometheus helm chart override file to use for installation
+  grafana_chart_repository: "" # Grafana helm chart repository to fetch chart from. Default: https://grafana.github.io/helm-charts
+  grafana_chart_name: "" # Grafana helm chart name to install. Default: grafana
+  grafana_chart_version: "8.8.5" # Grafana helm chart version to install. Set to empty to skip installation
+  grafana_override_file: "" # Grafana helm chart override file to use for installation
+
 
 ### Harness helm chart configuration
 harness:
@@ -66,10 +77,8 @@ harness:
     url: "https://harness.github.io/helm-charts"
 
   # Existing override files to use for helm chart installation. These files take precendence over auto-generated override file. Their order matters.
-  override_files: 
-    - "/Users/kapilgarg/harness-smp-installer/override.yaml"
+  override_files: []
   nginx: true # Set it to true to configure harness with nginx controller.
-  istio: false # Set it to true to configure harness with istio. nginx and istio are mutually exclusive.
   ingress_node_port: 32000 # Node port to expose ingress controller. This is used when nginx is enabled.
   modules: # Configure the modules to enable in the chart.
     cd: true

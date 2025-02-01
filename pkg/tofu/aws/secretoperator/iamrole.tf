@@ -30,24 +30,26 @@ resource "aws_iam_role" "secret_viewer_role" {
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
   assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Principal": {
-                "Federated": var.oidc_provider_arn
-            },
-            "Condition": {
-                "StringEquals": {
-                    "${var.oidc_provider_url}:aud": [
-                        "sts.amazonaws.com"
-                    ]
-                }
-            }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "sts:AssumeRoleWithWebIdentity",
+        "Principal" : {
+          "Federated" : var.oidc_provider_arn
+        },
+        "Condition" : {
+          "StringEquals" : {
+            "${var.oidc_provider_url}:aud" : [
+              "sts.amazonaws.com"
+            ]
+          }
         }
+      }
     ]
-})
+  })
+
+  tags = var.tags
 }
 
 resource "aws_iam_policy" "secret_viewer_policy" {
@@ -64,6 +66,8 @@ resource "aws_iam_policy" "secret_viewer_policy" {
       },
     ]
   })
+
+  tags = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "secret_viewer_policy_attachment" {

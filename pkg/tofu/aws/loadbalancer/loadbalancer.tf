@@ -93,6 +93,8 @@ module "alb" {
       
     }
   }
+
+  tags = var.tags
 }
 
 resource "aws_lb_target_group_attachment" "kubernetes" {
@@ -116,6 +118,9 @@ resource "aws_lb_listener" "https" {
     type             = "forward"
     target_group_arn = module.alb.target_groups["smp-instance"].arn
   }
+
+  tags = var.tags
+
   depends_on = [ aws_acm_certificate.cert, module.alb ]
 }
 

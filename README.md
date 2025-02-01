@@ -6,10 +6,10 @@ Installer for Harness SMP
 
 # Supported Profiles
 
-| Profile | Resources          | Description                                      |
-| ------- | ------------------ | ------------------------------------------------ |
-| small   | 5 t2.2xlarge nodes | Supports 200 users with 50 concurrent executions |
-| pov     | 2 t2.2xlarge nodes | Supports 5 users with 1 execution at a time      |
+| Profile | Resources          | Description                                     |
+| ------- | ------------------ | ----------------------------------------------- |
+| small   | 5 t2.2xlarge nodes | Supports 50 users with 10 concurrent executions |
+| pov     | 2 t2.2xlarge nodes | Supports 5 users with 1 execution at a time     |
 
 # Supported Features
 
@@ -22,6 +22,7 @@ Installer for Harness SMP
 | tls                | Create self signed certificate                      | AWS                |
 | helm chart         | Install harness helm chart with existing overrides  | AWS                |
 | dns                | Create hosted zone for existing domain              | AWS (Route53)      |
+| monitoring         | Install prometheus and grafana helm charts          | AWS (EKS)          |
 
 # Quick Start
 
@@ -95,6 +96,10 @@ For passcode, please reach out to kapil.garg@harness.io
 │   ├── files.go
 │   └── small
 │       └── override.yaml
+│       └── config.yaml
+│   └── pov
+│       └── override.yaml
+│       └── config.yaml
 ```
 
 ## Adding new resource

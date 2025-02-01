@@ -44,3 +44,9 @@ variable "airgap" {
   type = bool
   default = false
 }
+
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+  default     = {}
+}

@@ -78,6 +78,8 @@ module "eks" {
       protocol = "tcp"
     }
   }
+
+  tags = var.tags
 }
 
 data "aws_iam_policy" "ebs_csi_policy" {
@@ -93,6 +95,8 @@ module "irsa-ebs-csi" {
   provider_url                  = module.eks.oidc_provider
   role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
   oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+
+  tags = var.tags
 }
 
 # data "aws_eks_cluster_auth" "smp" {
