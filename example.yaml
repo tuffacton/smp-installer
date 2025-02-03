@@ -24,7 +24,7 @@ kubernetes:
 ### Creates loadbalancer
 ### For AWS, it creates an ALB
 loadbalancer:
-  manage: false # If set to false, installer will not execute tofu module for loadbalancer
+  manage: true # If set to false, installer will not execute tofu module for loadbalancer
   # ip: "" # Set this to loadbalancer IP or domain if manage is set to false
   tls:
     enabled: true # Set it to true to enable TLS for the domain.
@@ -44,7 +44,7 @@ dns:
 ### The secrets operator is installed using helm chart
 ### For more details, refer to https://external-secrets.io
 secretoperator:
-  manage: false # If set to false, installer will not execute tofu module for secretoperator
+  manage: true # If set to false, installer will not execute tofu module for secretoperator
   kubernetes_service_account: "" # Kubernetes service account associated with IAM role to access cloud secret manager. If not provided, installer will create a new service account.
   namespace: "external-secrets" # Namespace to install external-secrets operator
 
@@ -52,12 +52,12 @@ secretoperator:
 ### The secrets are stored in cloud secret manager and accessed by harness using external-secrets operator
 ### Currently, the supported databases are minio, mongo, and timescaledb
 secrets:
-  manage: false # If set to false, installer will not execute tofu module for secrets
+  manage: true # If set to false, installer will not execute tofu module for secrets
 
 ### Install monitoring stack
 ### The monitoring stack includes prometheus, grafana, and alertmanager
 monitoring:
-  manage: false # If set to false, installer will not install prometheus and grafana helm charts
+  manage: true # If set to false, installer will not install prometheus and grafana helm charts
   enabled: true # Set it to true to enable monitoring configuration in harness
   namespace: "monitoring" # Namespace to install monitoring stack
   prometheus_chart_repository: "" # Prometheus helm chart repository to fetch chart from. Default: oci://registry-1.docker.io/bitnamicharts
@@ -71,7 +71,7 @@ monitoring:
 
 ### Harness helm chart configuration
 harness:
-  manage: false
+  manage: true
   version: "0.23.1" # Harness version to be installed
   namespace: "harness" # Namespace to install harness
   repository: # Helm chart repository to fetch chart from
