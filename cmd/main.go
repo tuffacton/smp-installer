@@ -93,6 +93,7 @@ func newSyncCommand() *cobra.Command {
 func getResourceCommands() []resources.ResourceCommand {
 	resourceCommands := make([]resources.ResourceCommand, 0)
 	resourceCommands = append(resourceCommands, resources.NewKubernetesCommand())
+	resourceCommands = append(resourceCommands, resources.NewWaitForClusterCommand())
 	resourceCommands = append(resourceCommands, resources.NewLoadbalancerCommand())
 	resourceCommands = append(resourceCommands, resources.NewDnsCommand())
 	resourceCommands = append(resourceCommands, resources.NewSecretOperatorCommand())

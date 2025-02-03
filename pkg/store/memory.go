@@ -39,6 +39,16 @@ func (c *memoryStore) GetString(ctx context.Context, key string) string {
 	return val.(string)
 }
 
+// GetInt implements DataStore.
+func (c *memoryStore) GetInt(ctx context.Context, key string) int {
+	val, err := c.Get(ctx, key)
+	if err != nil {
+		log.Err(err).Msgf("failed to get key %s", key)
+		return 0
+	}
+	return val.(int)
+}
+
 // DataMap implements DataStore.
 func (c *memoryStore) DataMap(ctx context.Context) map[string]interface{} {
 	return c.data

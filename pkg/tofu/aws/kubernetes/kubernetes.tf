@@ -59,6 +59,7 @@ module "eks" {
       desired_size = var.initial_nodes
       # ensure this aligns with the var.region
       availability_zones = slice(data.aws_availability_zones.available.names, 0, 2)
+      launch_template_tags = var.instance_tags
     }
   }
 
@@ -112,6 +113,11 @@ module "irsa-ebs-csi" {
 #   sensitive = true
 # }
 
+data "aws_instances" "kubernetes" {
+  instance_tags = var.instance_tags
+  instance_state_names = ["running"]
+}
+
 output clustername {
   value = local.cluster_name
 }
@@ -122,4 +128,12 @@ output "oidc_provider_arn" {
 
 output "oidc_provider_url" {
   value = module.eks.oidc_provider
+}
+
+output "cluster_status" {
+  value = module.eks.cluster_status
+}
+
+output "instance_count" {
+    value = length(data.aws_instances.kubernetes.ids)
 }

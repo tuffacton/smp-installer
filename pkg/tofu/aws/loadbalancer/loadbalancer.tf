@@ -3,15 +3,7 @@ provider "aws" {
 }
 
 data "aws_instances" "kubernetes" {
-
-  # filter {
-  #   name   = "instance.group-id"
-  #   values = ["harness-smp-node-group"]
-  # }
-  instance_tags = {
-    "Name": "harness-smp-node-group"
-  }
-
+  instance_tags = var.instance_tags
 }
 
 locals {

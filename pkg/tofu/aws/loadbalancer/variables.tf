@@ -50,3 +50,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "instance_tags" {
+  description = "Tags to filter kubernetes cluster nodes"
+  type        = map(string)
+  default     = {}
+}

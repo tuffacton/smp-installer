@@ -1,5 +1,5 @@
 profile: "pov" # Profile to configure harness resources and cluster resources. Please select the supported profile.
-output_directory: "./dist1" # Output directory to store rendered files and outputs
+output_directory: "./dist2" # Output directory to store rendered files and outputs
 
 provider: "aws" # Cloud provider to install harness in. Please select the supported profile
 region: "us-east-1" # Region to install harness in
@@ -13,6 +13,8 @@ kubernetes:
   # cluster_name: ""              # Set this to existing cluster if manage is set to false
   version: "1.29" # Kubernetes version to create the cluster
   airgap: false # Set it to true to install harness in airgap mode
+  instance_tags: # Tags to associate with all instances created by installer. Same tags are used by loadbalancer to create target groups
+    name: "harness-smp-instance"
   nodes: {} # Override nodes configuration according to your needs. By default, installer will set these values based on profile
   #   machine_type: "t2.2xlarge"
   #   initial_nodes: 5
@@ -22,10 +24,10 @@ kubernetes:
 ### Creates loadbalancer
 ### For AWS, it creates an ALB
 loadbalancer:
-  manage: true # If set to false, installer will not execute tofu module for loadbalancer
-  # ip: ""                        # Set this to loadbalancer IP or domain if manage is set to false
+  manage: false # If set to false, installer will not execute tofu module for loadbalancer
+  # ip: "" # Set this to loadbalancer IP or domain if manage is set to false
   tls:
-    enabled: true # Set it to true to enable TLS for the domain. 
+    enabled: true # Set it to true to enable TLS for the domain.
     existing_certificate_id: "" # Set this to existing certificate id/arn, if empty installer will create a new self-signed certificate
     subject_alternative_names: [] # Subject alternative names for the certificate
 
@@ -42,7 +44,7 @@ dns:
 ### The secrets operator is installed using helm chart
 ### For more details, refer to https://external-secrets.io
 secretoperator:
-  manage: true # If set to false, installer will not execute tofu module for secretoperator
+  manage: false # If set to false, installer will not execute tofu module for secretoperator
   kubernetes_service_account: "" # Kubernetes service account associated with IAM role to access cloud secret manager. If not provided, installer will create a new service account.
   namespace: "external-secrets" # Namespace to install external-secrets operator
 
@@ -50,12 +52,12 @@ secretoperator:
 ### The secrets are stored in cloud secret manager and accessed by harness using external-secrets operator
 ### Currently, the supported databases are minio, mongo, and timescaledb
 secrets:
-  manage: true # If set to false, installer will not execute tofu module for secrets
+  manage: false # If set to false, installer will not execute tofu module for secrets
 
 ### Install monitoring stack
 ### The monitoring stack includes prometheus, grafana, and alertmanager
 monitoring:
-  manage: true # If set to false, installer will not install prometheus and grafana helm charts
+  manage: false # If set to false, installer will not install prometheus and grafana helm charts
   enabled: true # Set it to true to enable monitoring configuration in harness
   namespace: "monitoring" # Namespace to install monitoring stack
   prometheus_chart_repository: "" # Prometheus helm chart repository to fetch chart from. Default: oci://registry-1.docker.io/bitnamicharts
@@ -67,10 +69,9 @@ monitoring:
   grafana_chart_version: "8.8.5" # Grafana helm chart version to install. Set to empty to skip installation
   grafana_override_file: "" # Grafana helm chart override file to use for installation
 
-
 ### Harness helm chart configuration
 harness:
-  manage: true
+  manage: false
   version: "0.23.1" # Harness version to be installed
   namespace: "harness" # Namespace to install harness
   repository: # Helm chart repository to fetch chart from
