@@ -44,11 +44,6 @@ Installer for Harness SMP
   `./smp-installer sync -c ./example.yaml`
 6. The tool will generate the output directory configured in `example.yaml` which will store all rendered tofu files which are applied.
 
-# Demo
-https://harness-io.zoom.us/rec/share/1Y63qghLahP6kvTwEeFbNuFC0LkolS_SGC_1DbofABinynjSRE7uF9yHCUU4vIL4.Ygd5FC23aVW6MEf1 
-
-For passcode, please reach out to kapil.garg@harness.io
-
 # Contribute
 
 ## File structure
