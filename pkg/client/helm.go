@@ -6,11 +6,11 @@ import (
 	"path"
 	"reflect"
 
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/profiles"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/render"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/store"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/tofu"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/util"
+	"github.com/harness/smp-installer/pkg/profiles"
+	"github.com/harness/smp-installer/pkg/render"
+	"github.com/harness/smp-installer/pkg/store"
+	"github.com/harness/smp-installer/pkg/tofu"
+	"github.com/harness/smp-installer/pkg/util"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 )

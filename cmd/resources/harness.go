@@ -3,8 +3,8 @@ package resources
 import (
 	"context"
 
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/client"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/store"
+	"github.com/harness/smp-installer/pkg/client"
+	"github.com/harness/smp-installer/pkg/store"
 	"github.com/rs/zerolog/log"
 )
 

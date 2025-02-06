@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/util"
+	"github.com/harness/smp-installer/pkg/util"
 	"github.com/rs/zerolog/log"
 )
 

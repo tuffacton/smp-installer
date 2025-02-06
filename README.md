@@ -33,7 +33,7 @@ Installer for Harness SMP
 1. Clone this repository
 2. Run the binary with the following command
   ```
-  go build git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/cmd -o smp-installer
+  go build github.com/harness/smp-installer/cmd -o smp-installer
   ```
 3. Use the example.yaml as your configuration reference for the tool
 4. Authenticate with AWS

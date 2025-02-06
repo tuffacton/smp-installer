@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/render"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/store"
-	"git0.harness.io/l7B_kbSEQD2wjrM7PShm5w/PROD/Harness_Commons/harness-smp-installer/pkg/tofu"
+	"github.com/harness/smp-installer/pkg/render"
+	"github.com/harness/smp-installer/pkg/store"
+	"github.com/harness/smp-installer/pkg/tofu"
 	"github.com/rs/zerolog/log"
 )
 
