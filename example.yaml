@@ -15,6 +15,8 @@ kubernetes:
   airgap: false # Set it to true to install harness in airgap mode
   instance_tags: # Tags to associate with all instances created by installer. Same tags are used by loadbalancer to create target groups
     name: "harness-smp-instance"
+  vpc: "" # Set this to existing VPC id, if manage is set to false
+  subnets: [] # Set this to existing subnet ids, if manage is set to false
   nodes: {} # Override nodes configuration according to your needs. By default, installer will set these values based on profile
   #   machine_type: "t2.2xlarge"
   #   initial_nodes: 5

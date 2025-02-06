@@ -70,6 +70,9 @@ func (s *secretsClient) Exec(ctx context.Context) error {
 
 // PostExec implements ResourceClient.
 func (s *secretsClient) PostExec(ctx context.Context) (map[string]interface{}, error) {
+	if !s.clientConfig.IsManaged {
+		return map[string]interface{}{}, nil
+	}
 	serviceToSecrets := make(map[string]interface{})
 	err := yaml.Unmarshal([]byte(secretsConfig), &serviceToSecrets)
 	if err != nil {

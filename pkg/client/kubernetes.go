@@ -50,7 +50,10 @@ func (k *kubernetesClient) PostExec(ctx context.Context) (output map[string]inte
 		vpc = k.configStore.GetString(ctx, "kubernetes.vpc")
 		subnetsFromConfig, err := k.configStore.Get(ctx, "kubernetes.subnets")
 		if err == nil {
-			subnets = subnetsFromConfig.([]string)
+			subnetsFromConfigArray := subnetsFromConfig.([]interface{})
+			for _, subnet := range subnetsFromConfigArray {
+				subnets = append(subnets, subnet.(string))
+			}
 		}
 		oidcProvider = k.configStore.GetString(ctx, "kubernetes.oidc_provider_arn")
 		oidcIssuer = k.configStore.GetString(ctx, "kubernetes.oidc_provider_url")
