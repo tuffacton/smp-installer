@@ -33,16 +33,17 @@ Installer for Harness SMP
 1. Clone this repository
 2. Run the binary with the following command
   ```
-  go build github.com/harness/smp-installer/cmd -o smp-installer
+  go build -o smp-installer github.com/harness/smp-installer/cmd
   ```
 3. Use the example.yaml as your configuration reference for the tool
-4. Authenticate with AWS
-  1. Go to AWS IAM Console
-  2. Copy the access key and secret key of the user which has admin access to the AWS project
-  3. Export the keys in your terminal 
-5. Run the sync command
+   - Update the necessary fields as required
+5. Authenticate with AWS
+   - Go to AWS IAM Console
+   - Copy the access key and secret key of the user which has admin access to the AWS project
+   - Export the keys in your terminal 
+6. Run the sync command
   `./smp-installer sync -c ./example.yaml`
-6. The tool will generate the output directory configured in `example.yaml` which will store all rendered tofu files which are applied.
+7. The tool will generate the output directory configured in `example.yaml` which will store all rendered tofu files.
 
 # Contribute
 
