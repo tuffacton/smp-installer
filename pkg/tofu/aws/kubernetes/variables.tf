@@ -36,13 +36,13 @@ variable "initial_nodes" {
 
 variable "harness_node_port" {
   description = "Node port of ingress controller for harness"
-  type = number
+  type        = number
 }
 
 variable "airgap" {
   description = "Airgap installation"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "tags" {
@@ -57,3 +57,22 @@ variable "instance_tags" {
   default     = {}
 }
 
+variable "vpc" {
+  description = "vpc to use"
+  type = string
+}
+
+variable "availability_zones" {
+  description = "Availability zones to create EKS cluster"
+  type = list(string)
+}
+
+variable "private_subnets" {
+  description = "Private subnets to create EKS cluster"
+  type = list(string)
+}
+
+variable "public_subnets" {
+  description = "Public subnets to create EKS cluster"
+  type = list(string)
+}

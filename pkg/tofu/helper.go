@@ -49,7 +49,7 @@ func GetOutput(ctx context.Context, outDir, outname, jspath string) (string, err
 	tofucmd := exec.Command("tofu", "output", "-json", outname)
 	tofuout, err := tofucmd.Output()
 	if err != nil {
-		log.Err(err).Msgf("tofu output failed")
+		log.Err(err).Msgf("tofu output failed for output %s", outname)
 	}
 	err = os.WriteFile(tmpfilename, tofuout, 0666)
 	if err != nil {
