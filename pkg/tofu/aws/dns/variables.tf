@@ -31,12 +31,13 @@ variable "zone_id" {
   type        = string
 }
 
-variable "zone_name" {
-  description = "Route53 zone name"
-  type        = string
-}
-
 variable "private_zone" {
   description = "Route53 zone is private"
   type        = bool
+}
+
+variable "tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+  default     = {}
 }
