@@ -2,6 +2,6 @@
     "image": "mcr.microsoft.com/devcontainers/base:dev-ubuntu-24.04",
     "features": {
         "ghcr.io/robbert229/devcontainer-features/opentofu:1": {},
-
+        "ghcr.io/devcontainers/features/go:1": {}
     }
 }
