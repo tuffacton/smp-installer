@@ -24,6 +24,9 @@ global:
     enabled: false
   ng:
     enabled: true
+  
+  storageClass: gp2
+  storageClassName: gp2
 
   license:
     cg: {{ default "" .Config.harness.licenses.cg | quote }}

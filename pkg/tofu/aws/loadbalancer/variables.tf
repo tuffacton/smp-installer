@@ -56,3 +56,8 @@ variable "instance_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "kubernetes_cluster_security_group" {
+  description = "Security group for the kubernetes cluster"
+  type        = string
+}

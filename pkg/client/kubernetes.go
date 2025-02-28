@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 	"path"
 
@@ -41,61 +40,38 @@ func (k *kubernetesClient) Exec(ctx context.Context) error {
 // PostExec implements ResourceClient.
 func (k *kubernetesClient) PostExec(ctx context.Context) (output map[string]interface{}, err error) {
 	clusterName := ""
-	vpc := ""
-	subnets := []string{}
 	oidcProvider := ""
 	oidcIssuer := ""
+	nodeSecurityGroup := ""
 	if !k.clientConfig.IsManaged {
 		clusterName = k.configStore.GetString(ctx, "kubernetes.cluster_name")
-		vpc = k.configStore.GetString(ctx, "kubernetes.vpc")
-		subnetsFromConfig, err := k.configStore.Get(ctx, "kubernetes.subnets")
-		if err == nil {
-			subnetsFromConfigArray := subnetsFromConfig.([]interface{})
-			for _, subnet := range subnetsFromConfigArray {
-				subnets = append(subnets, subnet.(string))
-			}
-		}
 		oidcProvider = k.configStore.GetString(ctx, "kubernetes.oidc_provider_arn")
 		oidcIssuer = k.configStore.GetString(ctx, "kubernetes.oidc_provider_url")
+		nodeSecurityGroup = k.configStore.GetString(ctx, "kubernetes.security_group_id")
 	} else {
 		var err error = nil
 		clusterName, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "clustername", ".")
 		if err != nil {
-			log.Err(err).Msgf("unable to retrieve cluster name")
-			return nil, err
-		}
-		vpc, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "vpc", ".")
-		if err != nil {
-			log.Err(err).Msgf("unable to retrieve vpc name from tofu output")
-			return nil, err
-		}
-		subnetsFromTofuOutput, err := tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "subnets", ".")
-		if err != nil {
-			log.Err(err).Msgf("unable to retrieve cluster name")
-			return nil, err
-		}
-		err = json.Unmarshal([]byte(subnetsFromTofuOutput), &subnets)
-		if err != nil {
-			log.Err(err).Msgf("unable to retrieve subnets from tofu output")
 			return nil, err
 		}
 		oidcProvider, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "oidc_provider_arn", ".")
 		if err != nil {
-			log.Err(err).Msgf("unable to retrieve oidc provider from tofu output")
 			return nil, err
 		}
 		oidcIssuer, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "oidc_provider_url", ".")
 		if err != nil {
-			log.Err(err).Msgf("unable to retrieve oidc issuer from tofu output")
+			return nil, err
+		}
+		nodeSecurityGroup, err = tofu.GetOutput(ctx, k.clientConfig.ContextDirectory, "security_group_id", ".")
+		if err != nil {
 			return nil, err
 		}
 	}
 	return map[string]interface{}{
 		"cluster_name":      clusterName,
-		"vpc":               vpc,
-		"subnets":           subnets,
 		"oidc_provider_arn": oidcProvider,
 		"oidc_provider_url": oidcIssuer,
+		"security_group_id": nodeSecurityGroup,
 	}, nil
 }
 

@@ -1,22 +1,43 @@
 profile: "pov" # Profile to configure harness resources and cluster resources. Please select the supported profile.
-output_directory: "./dist2" # Output directory to store rendered files and outputs
+output_directory: "./dist-130" # Output directory to store rendered files and outputs
 
 provider: "aws" # Cloud provider to install harness in. Please select the supported profile
 region: "us-east-1" # Region to install harness in
+
+# By enabling airgap, the following actions take place
+# 1. The installer will configure image registry in harness based on registry config
+# 2. The installer will not create NAT gateway
+# 3. The installer will set kubernetes cluster_endpoint_public_access to false
+airgap: false
 tags: # Tags to associate with all resources created by installer
   harness: "smp"
 
+### Creates VPC
+### For AWS, it creates a VPC
+vpc:
+  manage: true
+  id: "" # Set this to existing VPC id, if manage is set to false
+  cidr: "" # Set this to CIDR block of VPC to create or existing CIDR block of VPC
+  availability_zones: [] # Set this to existing availability zones
+  subnets:
+    public: # Set this to existing subnet ids, if manage is set to false
+      - id: ""
+        cidr: ""
+    private: # Set this to existing subnet ids, if manage is set to false
+      - id: ""
+        cidr: ""
+
 ### Creates Kubernetes cluster
-### For AWS, it creates an EKS cluster
+### For AWS, it creates an EKS cluster in private subnet provided in vpc configuration
 kubernetes:
   manage: true # If set to false, installer will not execute tofu module for kubernetes cluster
-  # cluster_name: ""              # Set this to existing cluster if manage is set to false
-  version: "1.29" # Kubernetes version to create the cluster
-  airgap: false # Set it to true to install harness in airgap mode
+  cluster_name: "" # Set this to existing cluster if manage is set to false
+  version: "1.30" # Kubernetes version to create the cluster
   instance_tags: # Tags to associate with all instances created by installer. Same tags are used by loadbalancer to create target groups
-    name: "harness-smp-instance"
-  vpc: "" # Set this to existing VPC id, if manage is set to false
-  subnets: [] # Set this to existing subnet ids, if manage is set to false
+    name: "harness-smp-instance-new"
+  security_group_id: "" # Set this to existing security group id of kubernetes nodes, if manage is set to false
+  oidc_provider_arn: "" # Set this to existing OIDC provider ARN, if manage is set to false. Required for external secrets operator
+  oidc_provider_url: "" # Set this to existing OIDC provider URL, if manage is set to false. Required for external secrets operator
   nodes: {} # Override nodes configuration according to your needs. By default, installer will set these values based on profile
   #   machine_type: "t2.2xlarge"
   #   initial_nodes: 5
@@ -24,10 +45,10 @@ kubernetes:
   #   maximum_nodes: 5
 
 ### Creates loadbalancer
-### For AWS, it creates an ALB
+### For AWS, it creates an ALB in public subnet provided in vpc configuration
 loadbalancer:
   manage: true # If set to false, installer will not execute tofu module for loadbalancer
-  # ip: "" # Set this to loadbalancer IP or domain if manage is set to false
+  ip: "" # Set this to loadbalancer IP or domain if manage is set to false
   tls:
     enabled: true # Set it to true to enable TLS for the domain.
     existing_certificate_id: "" # Set this to existing certificate id/arn, if empty installer will create a new self-signed certificate
@@ -36,17 +57,16 @@ loadbalancer:
 ### DNS related configuration.
 ### For AWS, it manages the Route53 configuration. It creates a private zone in route53.
 dns:
-  manage: false # If set to false, installer will not execute tofu module for dns
-  domain: "" # Domain to be used for harness configuration. If empty, installer will use loadbalancer IP/Domain to configure endpoints.
-  # zone_id: ""                   # Set this to existing zone id, if manage is set to false
-  # zone_name: ""                 # Set this to existing zone name, if manage is set to false
-  # private_zone: true            # Set it to true to create a private zone in AWS route53/GCP cloud DNS
+  manage: false # If set to false, installer will not create dns zone or records
+  domain: "" # Domain to be used for harness configuration. If empty, installer will use loadbalancer Domain to configure endpoints.
+  zone_id: "" # Set this to existing zone id, if record needs to be created in existing zone
+  private_zone: true # Set it to false to create a public zone in AWS route53
 
 ### Install external-secrets operator to manage secrets in cloud secret manager
 ### The secrets operator is installed using helm chart
 ### For more details, refer to https://external-secrets.io
 secretoperator:
-  manage: true # If set to false, installer will not execute tofu module for secretoperator
+  manage: false # If set to false, installer will not execute tofu module for secretoperator
   kubernetes_service_account: "" # Kubernetes service account associated with IAM role to access cloud secret manager. If not provided, installer will create a new service account.
   namespace: "external-secrets" # Namespace to install external-secrets operator
 
@@ -54,7 +74,7 @@ secretoperator:
 ### The secrets are stored in cloud secret manager and accessed by harness using external-secrets operator
 ### Currently, the supported databases are minio, mongo, and timescaledb
 secrets:
-  manage: true # If set to false, installer will not execute tofu module for secrets
+  manage: false # If set to false, installer will not execute tofu module for secrets
 
 ### Install monitoring stack
 ### The monitoring stack includes prometheus, grafana, and alertmanager
@@ -86,6 +106,13 @@ harness:
   modules: # Configure the modules to enable in the chart.
     cd: true
     ci: false
+    ff: false
+    ccm: false
+    sto: false
+    chaos: false
+    ssca: false
+    dbops: false
+    code: false
   licenses: # Configure the licenses for cg and ng
     ng: ""
     cg: ""
