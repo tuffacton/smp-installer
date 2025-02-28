@@ -97,6 +97,7 @@ func (h *helmClient) mergeOverrides(ctx context.Context,
 	profileOverrideFiles []string) (map[string]interface{}, error) {
 	value, err := h.configStore.Get(ctx, "harness.override_files")
 	overrideFiles := make([]string, 0)
+	overrideFiles = append(overrideFiles, profileOverrideFiles...)
 	if err != nil {
 		log.Err(err).Msgf("unable to retrieve existing override files")
 	} else {
@@ -114,7 +115,6 @@ func (h *helmClient) mergeOverrides(ctx context.Context,
 			log.Warn().Msgf("existing override files of type %v: skipping", reflect.TypeOf(value))
 		}
 	}
-	overrideFiles = append(overrideFiles, profileOverrideFiles...)
 	var master = make(map[string]interface{})
 	for _, f := range overrideFiles {
 		log.Info().Msgf("reading override file %s", f)

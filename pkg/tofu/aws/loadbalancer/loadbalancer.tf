@@ -6,6 +6,20 @@ data "aws_instances" "kubernetes" {
   instance_tags = var.instance_tags
 }
 
+data "aws_vpc" "vpc" {
+  id = var.vpc
+}
+
+resource "random_string" "suffix" {
+  length  = 4
+  special = false
+}
+
+resource "random_string" "prefix" {
+  length  = 2
+  special = false
+}
+
 locals {
   http_listeners = {
     http = {
@@ -17,7 +31,7 @@ locals {
     }
   }
   https_listeners = {
-    # http-https-redirect = {
+    # https= {
     #   port     = 443
     #   protocol = "HTTPS"
     #   forward = {
@@ -52,7 +66,7 @@ locals {
 module "alb" {
   source = "terraform-aws-modules/alb/aws"
 
-  name    = "harness-smp-alb"
+  name    = "smp-alb-${random_string.suffix.result}"
   vpc_id  = var.vpc
   subnets = var.subnets
 
@@ -61,15 +75,16 @@ module "alb" {
   security_group_egress_rules = {
     all = {
       ip_protocol = "-1"
-      cidr_ipv4   = "10.0.0.0/16"
+      cidr_ipv4   = data.aws_vpc.vpc.cidr_block
     }
   }
+  enable_deletion_protection = false
 
   listeners = local.loadbalancer_listeners
 
   target_groups = {
     smp-instance = {
-      name_prefix      = "smp"
+      name_prefix      = "smp-${random_string.prefix.result}"
       protocol         = "HTTP"
       port             = var.harness_node_port
       create_attachment = false

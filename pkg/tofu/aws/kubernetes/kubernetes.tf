@@ -8,15 +8,17 @@ resource "random_string" "suffix" {
 }
 
 locals {
-  sanitized_version = replace(var.cluster_version, ".", "-")
-  cluster_name = "harness-smp-eks-${local.sanitized_version}-${random_string.suffix.result}"
+  cluster_name = "harness-smp-eks-${random_string.suffix.result}"
 }
 
-data "aws_availability_zones" "available" {
-  filter {
-    name   = "opt-in-status"
-    values = ["opt-in-not-required"]
-  }
+data "aws_subnet" "private_subnets" {
+  for_each = toset(var.private_subnets)
+  id       = each.value
+}
+
+data "aws_subnet" "public_subnets" {
+  for_each = toset(var.public_subnets)
+  id       = each.value
 }
 
 module "eks" {
@@ -26,7 +28,7 @@ module "eks" {
   cluster_name    = local.cluster_name
   cluster_version = var.cluster_version
 
-  cluster_endpoint_public_access           = true
+  cluster_endpoint_public_access           = var.airgap ? false : true
   enable_cluster_creator_admin_permissions = true
 
   cluster_addons = {
@@ -40,8 +42,8 @@ module "eks" {
     vpc-cni                = {}
   }
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
+  vpc_id     = var.vpc
+  subnet_ids = var.private_subnets
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
@@ -58,7 +60,7 @@ module "eks" {
       max_size     = var.maximum_nodes
       desired_size = var.initial_nodes
       # ensure this aligns with the var.region
-      availability_zones = slice(data.aws_availability_zones.available.names, 0, 2)
+      availability_zones = var.availability_zones
       launch_template_tags = var.instance_tags
     }
   }
@@ -66,14 +68,7 @@ module "eks" {
   node_security_group_additional_rules = {
     allow-ingress-private-subnet = {
       from_port = var.harness_node_port
-      cidr_blocks = module.vpc.private_subnets_cidr_blocks
-      to_port = var.harness_node_port
-      type = "ingress"
-      protocol = "tcp"
-    }
-    allow-ingress-public-subnet = {
-      from_port = var.harness_node_port
-      cidr_blocks = module.vpc.public_subnets_cidr_blocks
+      cidr_blocks = [for s in data.aws_subnet.public_subnets: s.cidr_block]
       to_port = var.harness_node_port
       type = "ingress"
       protocol = "tcp"
@@ -100,19 +95,6 @@ module "irsa-ebs-csi" {
   tags = var.tags
 }
 
-# data "aws_eks_cluster_auth" "smp" {
-#   name = local.cluster_name
-# }
-
-# output "eksout" {
-#   value = module.eks
-# }
-
-# output authout {
-#   value = data.aws_eks_cluster_auth.smp.token
-#   sensitive = true
-# }
-
 data "aws_instances" "kubernetes" {
   instance_tags = var.instance_tags
   instance_state_names = ["running"]
@@ -136,4 +118,8 @@ output "cluster_status" {
 
 output "instance_count" {
     value = length(data.aws_instances.kubernetes.ids)
+}
+
+output "security_group_id" {
+    value = module.eks.node_security_group_id
 }
